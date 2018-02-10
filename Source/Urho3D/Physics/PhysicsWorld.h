@@ -359,7 +359,7 @@ private:
     /// Simulating flag.
     bool simulating_;
     /// Debug draw depth test mode.
-    bool debugDepthTest_;
+    bool debugDepthTest_{};
     /// Debug renderer.
     DebugRenderer* debugRenderer_;
     /// Debug draw flags.

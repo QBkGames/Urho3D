@@ -83,7 +83,7 @@ public:
     /// Inverse texture size.
     Vector2 invTextureSize_;
     /// Current color. By default calculated from the element.
-    unsigned color_;
+    unsigned color_{};
     /// Vertex data.
     PODVector<float>* vertexData_;
     /// Vertex data start index.
@@ -91,7 +91,7 @@ public:
     /// Vertex data end index.
     unsigned vertexEnd_;
     /// Gradient flag.
-    bool useGradient_;
+    bool useGradient_{};
 
     /// Position adjustment vector for pixel-perfect rendering. Initialized by UI.
     static Vector3 posAdjust;

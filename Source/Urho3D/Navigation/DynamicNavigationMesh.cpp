@@ -263,7 +263,7 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
     unsigned tileBits = LogBaseTwo(maxTiles);
     auto maxPolys = (unsigned)(1 << (22 - tileBits));
 
-    dtNavMeshParams params;
+    dtNavMeshParams params{};
     rcVcopy(params.orig, &boundingBox_.min_.x_);
     params.tileWidth = tileEdgeLength;
     params.tileHeight = tileEdgeLength;
@@ -284,7 +284,7 @@ bool DynamicNavigationMesh::Allocate(const BoundingBox& boundingBox, unsigned ma
         return false;
     }
 
-    dtTileCacheParams tileCacheParams;
+    dtTileCacheParams tileCacheParams{};
     memset(&tileCacheParams, 0, sizeof(tileCacheParams));
     rcVcopy(tileCacheParams.orig, &boundingBox_.min_.x_);
     tileCacheParams.ch = cellHeight_;
@@ -378,7 +378,7 @@ bool DynamicNavigationMesh::Build()
         unsigned tileBits = LogBaseTwo(maxTiles);
         auto maxPolys = (unsigned)(1 << (22 - tileBits));
 
-        dtNavMeshParams params;
+        dtNavMeshParams params{};
         rcVcopy(params.orig, &boundingBox_.min_.x_);
         params.tileWidth = tileEdgeLength;
         params.tileHeight = tileEdgeLength;
@@ -399,7 +399,7 @@ bool DynamicNavigationMesh::Build()
             return false;
         }
 
-        dtTileCacheParams tileCacheParams;
+        dtTileCacheParams tileCacheParams{};
         memset(&tileCacheParams, 0, sizeof(tileCacheParams));
         rcVcopy(tileCacheParams.orig, &boundingBox_.min_.x_);
         tileCacheParams.ch = cellHeight_;
@@ -687,7 +687,7 @@ void DynamicNavigationMesh::SetNavigationDataAttr(const PODVector<unsigned char>
     numTilesX_ = buffer.ReadInt();
     numTilesZ_ = buffer.ReadInt();
 
-    dtNavMeshParams params;
+    dtNavMeshParams params{};
     buffer.Read(&params, sizeof(dtNavMeshParams));
 
     navMesh_ = dtAllocNavMesh();
@@ -704,7 +704,7 @@ void DynamicNavigationMesh::SetNavigationDataAttr(const PODVector<unsigned char>
         return;
     }
 
-    dtTileCacheParams tcParams;
+    dtTileCacheParams tcParams{};
     buffer.Read(&tcParams, sizeof(tcParams));
 
     tileCache_ = dtAllocTileCache();
@@ -775,7 +775,7 @@ bool DynamicNavigationMesh::ReadTiles(Deserializer& source, bool silent)
     tileQueue_.Clear();
     while (!source.IsEof())
     {
-        dtTileCacheLayerHeader header;
+        dtTileCacheLayerHeader header{};
         source.Read(&header, sizeof(dtTileCacheLayerHeader));
         const int dataSize = source.ReadInt();
 
@@ -830,7 +830,7 @@ int DynamicNavigationMesh::BuildTile(Vector<NavigationGeometryInfo>& geometryLis
 
     DynamicNavBuildData build(allocator_.Get());
 
-    rcConfig cfg;
+    rcConfig cfg{};
     memset(&cfg, 0, sizeof cfg);
     cfg.cs = cellSize_;
     cfg.ch = cellHeight_;
@@ -953,7 +953,7 @@ int DynamicNavigationMesh::BuildTile(Vector<NavigationGeometryInfo>& geometryLis
     int retCt = 0;
     for (int i = 0; i < build.heightFieldLayers_->nlayers; ++i)
     {
-        dtTileCacheLayerHeader header;
+        dtTileCacheLayerHeader header{};
         header.magic = DT_TILECACHE_MAGIC;
         header.version = DT_TILECACHE_VERSION;
         header.tx = x;

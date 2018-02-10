@@ -236,7 +236,7 @@ protected:
     /// Debug renderer.
     DebugRenderer* debugRenderer_;
     /// Debug draw depth test mode.
-    bool debugDepthTest_;
+    bool debugDepthTest_{};
 
     /// Automatic simulation update enabled flag.
     bool updateEnabled_;
@@ -272,13 +272,13 @@ protected:
         /// Shape B.
         SharedPtr<CollisionShape2D> shapeB_;
         /// Number of contact points.
-        int numPoints_;
+        int numPoints_{};
         /// Contact normal in world space.
         Vector2 worldNormal_;
         /// Contact positions in world space.
         Vector2 worldPositions_[b2_maxManifoldPoints];
         /// Contact overlap values.
-        float separations_[b2_maxManifoldPoints];
+        float separations_[b2_maxManifoldPoints]{};
     };
     /// Begin contact infos.
     Vector<ContactInfo> beginContactInfos_;

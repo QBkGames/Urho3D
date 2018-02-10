@@ -200,7 +200,7 @@ protected:
         /// Direct3D11 shader resource view.
         void* shaderResourceView_;
         /// OpenGL target.
-        unsigned target_;
+        unsigned target_{};
     };
 
     /// Direct3D11 sampler state object.
@@ -227,11 +227,11 @@ protected:
     /// Filtering mode.
     TextureFilterMode filterMode_;
     /// Addressing mode.
-    TextureAddressMode addressModes_[MAX_COORDS];
+    TextureAddressMode addressModes_[MAX_COORDS]{};
     /// Texture anisotropy level.
     unsigned anisotropy_;
     /// Mip levels to skip when loading per texture quality setting.
-    unsigned mipsToSkip_[MAX_TEXTURE_QUALITY_LEVELS];
+    unsigned mipsToSkip_[MAX_TEXTURE_QUALITY_LEVELS]{};
     /// Border color.
     Color borderColor_;
     /// Multisampling level.

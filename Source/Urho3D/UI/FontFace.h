@@ -40,23 +40,23 @@ struct URHO3D_API FontGlyph
     FontGlyph();
 
     /// X position in texture.
-    short x_;
+    short x_{};
     /// Y position in texture.
-    short y_;
+    short y_{};
     /// Width in texture.
-    short texWidth_;
+    short texWidth_{};
     /// Height in texture.
-    short texHeight_;
+    short texHeight_{};
     /// Width on screen.
-    float width_;
+    float width_{};
     /// Height on screen.
-    float height_;
+    float height_{};
     /// Glyph X offset from origin.
-    float offsetX_;
+    float offsetX_{};
     /// Glyph Y offset from origin.
-    float offsetY_;
+    float offsetY_{};
     /// Horizontal advance.
-    float advanceX_;
+    float advanceX_{};
     /// Texture page. M_MAX_UNSIGNED if not yet resident on any texture.
     unsigned page_;
     /// Used flag.
@@ -112,9 +112,9 @@ protected:
     /// Glyph texture pages.
     Vector<SharedPtr<Texture2D> > textures_;
     /// Point size.
-    float pointSize_;
+    float pointSize_{};
     /// Row height.
-    float rowHeight_;
+    float rowHeight_{};
 };
 
 }

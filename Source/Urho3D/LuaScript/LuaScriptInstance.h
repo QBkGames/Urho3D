@@ -180,7 +180,7 @@ private:
     /// Lua reference to script object.
     int scriptObjectRef_;
     /// Script object method.
-    LuaFunction* scriptObjectMethods_[MAX_LUA_SCRIPT_OBJECT_METHODS];
+    LuaFunction* scriptObjectMethods_[MAX_LUA_SCRIPT_OBJECT_METHODS]{};
 };
 
 }

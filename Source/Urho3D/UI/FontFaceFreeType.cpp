@@ -73,7 +73,7 @@ public:
 
 private:
     /// FreeType library.
-    FT_Library library_;
+    FT_Library library_{};
 };
 
 FontFaceFreeType::FontFaceFreeType(Font* font) :

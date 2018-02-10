@@ -96,13 +96,13 @@ private:
     /// Current animation.
     Animation* animation_;
     /// Looping.
-    bool looping_;
+    bool looping_{};
     /// Root spatial info.
     SpatialInfo spatialInfo_;
     /// Current time.
-    float currentTime_;
+    float currentTime_{};
     /// Current mainline key.
-    MainlineKey* mainlineKey_;
+    MainlineKey* mainlineKey_{};
     /// Current timeline keys.
     PODVector<SpatialTimelineKey*> timelineKeys_;
 };

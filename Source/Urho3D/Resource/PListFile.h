@@ -127,7 +127,7 @@ private:
     /// Values.
     union
     {
-        int int_;
+        int int_{};
         bool bool_;
         float float_;
         String* string_;

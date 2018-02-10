@@ -366,7 +366,7 @@ bool NamedPipe::IsEof() const
         FD_ZERO(&set);      // NOLINT(modernize-use-bool-literals)
         FD_SET(readHandle_, &set);
 
-        struct timeval timeout;
+        struct timeval timeout{};
         timeout.tv_sec = 0;
         timeout.tv_usec = 1000; // 1ms timeout for select
 

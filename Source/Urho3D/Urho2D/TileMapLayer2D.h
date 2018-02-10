@@ -114,11 +114,11 @@ private:
     /// Tmx layer.
     const TmxLayer2D* tmxLayer_;
     /// Tile layer.
-    const TmxTileLayer2D* tileLayer_;
+    const TmxTileLayer2D* tileLayer_{};
     /// Object group.
-    const TmxObjectGroup2D* objectGroup_;
+    const TmxObjectGroup2D* objectGroup_{};
     /// Image layer.
-    const TmxImageLayer2D* imageLayer_;
+    const TmxImageLayer2D* imageLayer_{};
     /// Draw order.
     int drawOrder_;
     /// Visible.

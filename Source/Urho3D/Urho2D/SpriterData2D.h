@@ -59,7 +59,7 @@ struct SpriterData
     bool Load(const pugi::xml_node& node);
     bool Load(const void* data, size_t size);
 
-    int scmlVersion_;
+    int scmlVersion_{};
     String generator_;
     String generatorVersion_;
     PODVector<Folder*> folders_;
@@ -75,7 +75,7 @@ struct Folder
     void Reset();
     bool Load(const pugi::xml_node& node);
 
-    int id_;
+    int id_{};
     String name_;
     PODVector<File*> files_;
 };
@@ -89,12 +89,12 @@ struct File
     bool Load(const pugi::xml_node& node);
 
     Folder* folder_;
-    int id_;
+    int id_{};
     String name_;
-    float width_;
-    float height_;
-    float pivotX_;
-    float pivotY_;
+    float width_{};
+    float height_{};
+    float pivotX_{};
+    float pivotY_{};
 };
 
 /// Entity.
@@ -106,7 +106,7 @@ struct Entity
     void Reset();
     bool Load(const pugi::xml_node& node);
 
-    int id_;
+    int id_{};
     String name_;
     PODVector<CharacterMap*> characterMaps_;
     PODVector<Animation*> animations_;
@@ -121,7 +121,7 @@ struct CharacterMap
     void Reset();
     bool Load(const pugi::xml_node& node);
 
-    int id_;
+    int id_{};
     String name_;
     PODVector<MapInstruction*> maps_;
 };
@@ -134,10 +134,10 @@ struct MapInstruction
 
     bool Load(const pugi::xml_node& node);
 
-    int folder_;
-    int file_;
-    int targetFolder_;
-    int targetFile_;
+    int folder_{};
+    int file_{};
+    int targetFolder_{};
+    int targetFile_{};
 };
 
 /// Animation.
@@ -149,10 +149,10 @@ struct Animation
     void Reset();
     bool Load(const pugi::xml_node& node);
 
-    int id_;
+    int id_{};
     String name_;
-    float length_;
-    bool looping_;
+    float length_{};
+    bool looping_{};
     PODVector<MainlineKey*> mainlineKeys_;
     PODVector<Timeline*> timelines_;
 };
@@ -166,8 +166,8 @@ struct MainlineKey
     void Reset();
     bool Load(const pugi::xml_node& node);
 
-    int id_;
-    float time_;
+    int id_{};
+    float time_{};
     PODVector<Ref*> boneRefs_;
     PODVector<Ref*> objectRefs_;
 };
@@ -180,11 +180,11 @@ struct Ref
 
     bool Load(const pugi::xml_node& node);
 
-    int id_;
-    int parent_;
-    int timeline_;
-    int key_;
-    int zIndex_;
+    int id_{};
+    int parent_{};
+    int timeline_{};
+    int key_{};
+    int zIndex_{};
 };
 
 /// Object type.
@@ -203,7 +203,7 @@ struct Timeline
     void Reset();
     bool Load(const pugi::xml_node& node);
 
-    int id_;
+    int id_{};
     String name_;
     ObjectType objectType_;
     PODVector<SpatialTimelineKey*> keys_;
@@ -232,11 +232,11 @@ struct TimelineKey
     float GetTByCurveType(float currentTime, float nextTimelineTime) const;
 
     Timeline* timeline_;
-    int id_;
-    float time_;
+    int id_{};
+    float time_{};
     CurveType curveType_;
-    float c1_;
-    float c2_;
+    float c1_{};
+    float c2_{};
 };
 
 /// Spatial info.
@@ -271,8 +271,8 @@ struct SpatialTimelineKey : TimelineKey
 /// Bone timeline key.
 struct BoneTimelineKey : SpatialTimelineKey
 {
-    float length_;
-    float width_;
+    float length_{};
+    float width_{};
 
     explicit BoneTimelineKey(Timeline* timeline);
     ~BoneTimelineKey() override;
@@ -288,14 +288,14 @@ struct BoneTimelineKey : SpatialTimelineKey
 /// Sprite timeline key.
 struct SpriteTimelineKey : SpatialTimelineKey
 {
-    int folderId_;
-    int fileId_;
-    bool useDefaultPivot_;
-    float pivotX_;
-    float pivotY_;
+    int folderId_{};
+    int fileId_{};
+    bool useDefaultPivot_{};
+    float pivotX_{};
+    float pivotY_{};
 
     /// Run time data.
-    int zIndex_;
+    int zIndex_{};
 
     explicit SpriteTimelineKey(Timeline* timeline);
     ~SpriteTimelineKey() override;

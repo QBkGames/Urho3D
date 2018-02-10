@@ -62,11 +62,11 @@ private:
     /// Load mode.
     int loadMode_;
     /// Use subpixel glyph positioning?
-    bool subpixel_;
+    bool subpixel_{};
     /// Oversampling level.
-    int oversampling_;
+    int oversampling_{};
     /// Ascender.
-    float ascender_;
+    float ascender_{};
     /// Has mutable glyph.
     bool hasMutableGlyph_;
     /// Glyph area allocator.

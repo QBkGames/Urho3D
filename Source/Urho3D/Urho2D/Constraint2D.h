@@ -99,7 +99,7 @@ protected:
     /// Other body.
     WeakPtr<RigidBody2D> otherBody_;
     /// Other body node ID for serialization.
-    unsigned otherBodyNodeID_;
+    unsigned otherBodyNodeID_{};
     /// Collide connected flag.
     bool collideConnected_;
     /// Other body node ID dirty flag.

@@ -149,11 +149,11 @@ private:
     /// Number of vertices.
     unsigned vertexCount_;
     /// Vertex size.
-    unsigned vertexSize_;
+    unsigned vertexSize_{};
     /// Vertex elements.
     PODVector<VertexElement> elements_;
     /// Vertex element hash.
-    unsigned long long elementHash_;
+    unsigned long long elementHash_{};
     /// Vertex element legacy bitmask.
     unsigned elementMask_;
     /// Buffer locking state.

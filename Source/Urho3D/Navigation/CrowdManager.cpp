@@ -363,7 +363,7 @@ void CrowdManager::SetObstacleAvoidanceTypesAttr(const VariantVector& value)
     {
         if (index + 10 <= value.Size())
         {
-            dtObstacleAvoidanceParams params;
+            dtObstacleAvoidanceParams params{};
             params.velBias = value[index++].GetFloat();
             params.weightDesVel = value[index++].GetFloat();
             params.weightCurVel = value[index++].GetFloat();
@@ -620,7 +620,7 @@ int CrowdManager::AddAgent(CrowdAgent* agent, const Vector3& pos)
 {
     if (!crowd_ || !navigationMesh_ || !agent)
         return -1;
-    dtCrowdAgentParams params;
+    dtCrowdAgentParams params{};
     params.userData = agent;
     if (agent->radius_ == 0.f)
         agent->radius_ = navigationMesh_->GetAgentRadius();

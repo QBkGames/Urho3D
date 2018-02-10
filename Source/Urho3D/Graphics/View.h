@@ -333,15 +333,15 @@ private:
     /// Substitute rendertarget for deferred rendering. Allocated if necessary.
     RenderSurface* substituteRenderTarget_;
     /// Texture(s) for sampling the viewport contents. Allocated if necessary.
-    Texture* viewportTextures_[MAX_VIEWPORT_TEXTURES];
+    Texture* viewportTextures_[MAX_VIEWPORT_TEXTURES]{};
     /// Color rendertarget active for the current renderpath command.
-    RenderSurface* currentRenderTarget_;
+    RenderSurface* currentRenderTarget_{};
     /// Last used custom depth render surface.
-    RenderSurface* lastCustomDepthSurface_;
+    RenderSurface* lastCustomDepthSurface_{};
     /// Texture containing the latest viewport texture.
-    Texture* currentViewportTexture_;
+    Texture* currentViewportTexture_{};
     /// Dummy texture for D3D9 depth only rendering.
-    Texture* depthOnlyDummyTexture_;
+    Texture* depthOnlyDummyTexture_{};
     /// Viewport rectangle.
     IntRect viewRect_;
     /// Viewport size.
@@ -351,39 +351,39 @@ private:
     /// Information of the frame being rendered.
     FrameInfo frame_;
     /// View aspect ratio.
-    float aspectRatio_;
+    float aspectRatio_{};
     /// Minimum Z value of the visible scene.
-    float minZ_;
+    float minZ_{};
     /// Maximum Z value of the visible scene.
-    float maxZ_;
+    float maxZ_{};
     /// Material quality level.
-    int materialQuality_;
+    int materialQuality_{};
     /// Maximum number of occluder triangles.
-    int maxOccluderTriangles_;
+    int maxOccluderTriangles_{};
     /// Minimum number of instances required in a batch group to render as instanced.
-    int minInstances_;
+    int minInstances_{};
     /// Highest zone priority currently visible.
-    int highestZonePriority_;
+    int highestZonePriority_{};
     /// Geometries updated flag.
-    bool geometriesUpdated_;
+    bool geometriesUpdated_{};
     /// Camera zone's override flag.
-    bool cameraZoneOverride_;
+    bool cameraZoneOverride_{};
     /// Draw shadows flag.
-    bool drawShadows_;
+    bool drawShadows_{};
     /// Deferred flag. Inferred from the existence of a light volume command in the renderpath.
-    bool deferred_;
+    bool deferred_{};
     /// Deferred ambient pass flag. This means that the destination rendertarget is being written to at the same time as albedo/normal/depth buffers, and needs to be RGBA on OpenGL.
-    bool deferredAmbient_;
+    bool deferredAmbient_{};
     /// Forward light base pass optimization flag. If in use, combine the base pass and first light for all opaque objects.
-    bool useLitBase_;
+    bool useLitBase_{};
     /// Has scene passes flag. If no scene passes, view can be defined without a valid scene or camera to only perform quad rendering.
-    bool hasScenePasses_;
+    bool hasScenePasses_{};
     /// Whether is using a custom readable depth texture without a stencil channel.
-    bool noStencil_;
+    bool noStencil_{};
     /// Draw debug geometry flag. Copied from the viewport.
-    bool drawDebug_;
+    bool drawDebug_{};
     /// Renderpath.
-    RenderPath* renderPath_;
+    RenderPath* renderPath_{};
     /// Per-thread octree query results.
     Vector<PODVector<Drawable*> > tempDrawables_;
     /// Per-thread geometries, lights and Z range collection results.
@@ -401,7 +401,7 @@ private:
     /// Lights.
     PODVector<Light*> lights_;
     /// Number of active occluders.
-    unsigned activeOccluders_;
+    unsigned activeOccluders_{};
 
     /// Drawables that limit their maximum light count.
     HashSet<Drawable*> maxLightsDrawables_;
@@ -418,25 +418,25 @@ private:
     /// Batch queues by pass index.
     HashMap<unsigned, BatchQueue> batchQueues_;
     /// Index of the GBuffer pass.
-    unsigned gBufferPassIndex_;
+    unsigned gBufferPassIndex_{};
     /// Index of the opaque forward base pass.
-    unsigned basePassIndex_;
+    unsigned basePassIndex_{};
     /// Index of the alpha pass.
-    unsigned alphaPassIndex_;
+    unsigned alphaPassIndex_{};
     /// Index of the forward light pass.
-    unsigned lightPassIndex_;
+    unsigned lightPassIndex_{};
     /// Index of the litbase pass.
-    unsigned litBasePassIndex_;
+    unsigned litBasePassIndex_{};
     /// Index of the litalpha pass.
-    unsigned litAlphaPassIndex_;
+    unsigned litAlphaPassIndex_{};
     /// Pointer to the light volume command if any.
-    const RenderPathCommand* lightVolumeCommand_;
+    const RenderPathCommand* lightVolumeCommand_{};
     /// Pointer to the forwardlights command if any.
-    const RenderPathCommand* forwardLightsCommand_;
+    const RenderPathCommand* forwardLightsCommand_{};
     /// Pointer to the current commmand if it contains shader parameters to be set for a render pass.
     const RenderPathCommand* passCommand_;
     /// Flag for scene being resolved from the backbuffer.
-    bool usedResolve_;
+    bool usedResolve_{};
 };
 
 }

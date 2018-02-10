@@ -689,9 +689,9 @@ protected:
     /// Use derived opacity flag.
     bool useDerivedOpacity_;
     /// Input enabled flag.
-    bool enabled_;
+    bool enabled_{};
     /// Last SetEnabled flag before any SetDeepEnabled.
-    bool enabledPrev_;
+    bool enabledPrev_{};
     /// Value editable flag.
     bool editable_;
     /// Selected flag.
@@ -786,7 +786,7 @@ private:
     /// Opacity.
     float opacity_;
     /// Derived opacity.
-    mutable float derivedOpacity_;
+    mutable float derivedOpacity_{};
     /// Derived color. Only valid when no gradient.
     mutable Color derivedColor_;
     /// Derived opacity dirty flag.

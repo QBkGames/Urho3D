@@ -147,7 +147,7 @@ private:
     /// Shadow data.
     SharedArrayPtr<unsigned char> shadowData_;
     /// Number of vertices.
-    unsigned vertexCount_;
+    unsigned vertexCount_{};
     /// Vertex size.
     unsigned vertexSize_{};
     /// Vertex elements.
@@ -155,7 +155,7 @@ private:
     /// Vertex element hash.
     unsigned long long elementHash_{};
     /// Vertex element legacy bitmask.
-    unsigned elementMask_;
+    unsigned elementMask_{};
     /// Buffer locking state.
     LockState lockState_;
     /// Lock start vertex.

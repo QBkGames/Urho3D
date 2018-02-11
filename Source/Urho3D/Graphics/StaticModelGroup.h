@@ -91,9 +91,9 @@ private:
     /// Number of valid instance node transforms.
     unsigned numWorldTransforms_{};
     /// Whether node IDs have been set and nodes should be searched for during ApplyAttributes.
-    mutable bool nodesDirty_;
+    mutable bool nodesDirty_{};
     /// Whether nodes have been manipulated by the API and node ID attribute should be refreshed.
-    mutable bool nodeIDsDirty_;
+    mutable bool nodeIDsDirty_{};
 };
 
 }

@@ -54,28 +54,18 @@ class PackerInfo : public RefCounted
 public:
     String path;
     String name;
-    int x;
-    int y;
-    int offsetX;
-    int offsetY;
-    int width;
-    int height;
-    int frameWidth;
-    int frameHeight;
-    int frameX;
-    int frameY;
+    int x{};
+    int y{};
+    int offsetX{};
+    int offsetY{};
+    int width{};
+    int height{};
+    int frameWidth{};
+    int frameHeight{};
 
     PackerInfo(const String& path_, const String& name_) :
         path(path_),
-        name(name_),
-        x(0),
-        y(0),
-        offsetX(0),
-        offsetY(0),
-        frameWidth(0),
-        frameHeight(0),
-        frameX(0),
-        frameY(0)
+        name(name_)
     {
     }
 
@@ -231,7 +221,7 @@ void Run(Vector<String>& arguments)
             {
                 for (int x = 0; x < imageWidth; ++x)
                 {
-                    bool found = (image.GetPixelInt(x, y) & 0x000000ff) != 0;
+                    bool found = (image.GetPixelInt(x, y) & 0x000000ffu) != 0;
                     if (found) {
                         minX = Min(minX, x);
                         minY = Min(minY, y);
@@ -272,7 +262,7 @@ void Run(Vector<String>& arguments)
         for(unsigned x=2; x<11; ++x)
         {
             for(unsigned y=2; y<11; ++y)
-                tries.Push(IntVector2((1<<x), (1<<y)));
+                tries.Push(IntVector2((1u<<x), (1u<<y)));
         }
 
         // load rectangles
@@ -332,13 +322,12 @@ void Run(Vector<String>& arguments)
             ErrorExit("Could not allocate for all images.  The max sprite sheet texture size is " + String(MAX_TEXTURE_SIZE) + "x" + String(MAX_TEXTURE_SIZE) + ".");
     }
 
-
     // create image for spritesheet
     Image spriteSheetImage(context);
     spriteSheetImage.SetSize(packedWidth, packedHeight, 4);
 
     // zero out image
-    spriteSheetImage.SetData((unsigned char*)calloc(sizeof(unsigned char), (size_t)packedWidth * packedHeight * 4));
+    spriteSheetImage.SetData(nullptr);
 
     XMLFile xml(context);
     XMLElement root = xml.CreateRoot("TextureAtlas");

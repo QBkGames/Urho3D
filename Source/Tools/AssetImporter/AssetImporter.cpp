@@ -60,15 +60,8 @@ using namespace Urho3D;
 
 struct OutModel
 {
-    OutModel() :
-        rootBone_(nullptr),
-        totalVertices_(0),
-        totalIndices_(0)
-    {
-    }
-
     String outName_;
-    aiNode* rootNode_;
+    aiNode* rootNode_{};
     HashSet<unsigned> meshIndices_;
     PODVector<aiMesh*> meshes_;
     PODVector<aiNode*> meshNodes_;
@@ -77,15 +70,15 @@ struct OutModel
     PODVector<aiAnimation*> animations_;
     PODVector<float> boneRadii_;
     PODVector<BoundingBox> boneHitboxes_;
-    aiNode* rootBone_;
-    unsigned totalVertices_;
-    unsigned totalIndices_;
+    aiNode* rootBone_{};
+    unsigned totalVertices_{};
+    unsigned totalIndices_{};
 };
 
 struct OutScene
 {
     String outName_;
-    aiNode* rootNode_;
+    aiNode* rootNode_{};
     Vector<OutModel> models_;
     PODVector<aiNode*> nodes_;
     PODVector<unsigned> nodeModelIndices_;
@@ -595,7 +588,7 @@ void Run(const Vector<String>& arguments)
         }
         if (numLodArguments < 4)
             ErrorExit("Must define at least 2 LOD levels");
-        if (!(numLodArguments & 1))
+        if (!(numLodArguments & 1u))
             ErrorExit("No output file defined");
 
         for (unsigned i = 1; i < numLodArguments + 1; ++i)
@@ -604,7 +597,7 @@ void Run(const Vector<String>& arguments)
                 outFile = GetInternalPath(arguments[i]);
             else
             {
-                if (i & 1)
+                if (i & 1u)
                     lodDistances.Push(Max(ToFloat(arguments[i]), 0.0f));
                 else
                     modelNames.Push(GetInternalPath(arguments[i]));
@@ -1375,7 +1368,7 @@ void BuildAndSaveAnimations(OutModel* model)
             AnimationTrack* track = outAnim->CreateTrack(channelName);
 
             // Check which channels are used
-            track->channelMask_ = 0;
+            track->channelMask_ = CHANNEL_NONE;
             if (channel->mNumPositionKeys > 1 || !posEqual)
                 track->channelMask_ |= CHANNEL_POSITION;
             if (channel->mNumRotationKeys > 1 || !rotEqual)
@@ -1695,7 +1688,9 @@ void BuildAndSaveScene(OutScene& scene, bool asPrefab)
     {
         const OutModel& model = scene.models_[scene.nodeModelIndices_[i]];
         Node* modelNode = CreateSceneNode(outScene, scene.nodes_[i], nodeMapping);
-        StaticModel* staticModel = model.bones_.Empty() ? modelNode->CreateComponent<StaticModel>() : modelNode->CreateComponent<AnimatedModel>();
+        auto* staticModel =
+            static_cast<StaticModel*>(
+                model.bones_.Empty() ? modelNode->CreateComponent<StaticModel>() : modelNode->CreateComponent<AnimatedModel>());
 
         // Create a dummy model so that the reference can be stored
         String modelName = (useSubdirs_ ? "Models/" : "") + GetFileNameAndExtension(model.outName_);

@@ -23,6 +23,7 @@
 #pragma once
 
 #include "../Math/Vector2.h"
+#include "../Input/InputConstants.h"
 #include "../Resource/XMLFile.h"
 #include "../Scene/Animatable.h"
 #include "../UI/UIBatch.h"
@@ -98,14 +99,18 @@ enum TraversalMode
     TM_DEPTH_FIRST
 };
 
-/// Drag and drop disabled.
-static const unsigned DD_DISABLED = 0x0;
-/// Drag and drop source flag.
-static const unsigned DD_SOURCE = 0x1;
-/// Drag and drop target flag.
-static const unsigned DD_TARGET = 0x2;
-/// Drag and drop source and target.
-static const unsigned DD_SOURCE_AND_TARGET = 0x3;
+enum DragAndDropMode : unsigned
+{
+    /// Drag and drop disabled.
+    DD_DISABLED = 0x0,
+    /// Drag and drop source flag.
+    DD_SOURCE = 0x1,
+    /// Drag and drop target flag.
+    DD_TARGET = 0x2,
+    /// Drag and drop source and target.
+    DD_SOURCE_AND_TARGET = 0x3,
+};
+URHO3D_FLAGSET(DragAndDropMode, DragAndDropModeFlags);
 
 class Cursor;
 class ResourceCache;
@@ -175,9 +180,9 @@ public:
     /// React to drag and drop finish. Return true to signal that the drop was accepted.
     virtual bool OnDragDropFinish(UIElement* source);
     /// React to mouse wheel.
-    virtual void OnWheel(int delta, int buttons, int qualifiers) { }
+    virtual void OnWheel(int delta, MouseButtonFlags buttons, QualifierFlags qualifiers) { }
     /// React to a key press.
-    virtual void OnKey(int key, int buttons, int qualifiers) { }
+    virtual void OnKey(Key key, MouseButtonFlags buttons, QualifierFlags qualifiers) { }
     /// React to text input event.
     virtual void OnTextInput(const String& text) { }
 
@@ -309,7 +314,7 @@ public:
     /// Set focus mode.
     void SetFocusMode(FocusMode mode);
     /// Set drag and drop flags.
-    void SetDragDropMode(unsigned mode);
+    void SetDragDropMode(DragAndDropModeFlags mode);
     /// Set style from an XML file. Find the style element by name. If the style file is not explicitly provided, use the default style from parental chain. Return true if the style is applied successfully.
     bool SetStyle(const String& styleName, XMLFile* file = nullptr);
     /// Set style from an XML element. Return true if the style is applied successfully.
@@ -531,7 +536,7 @@ public:
     FocusMode GetFocusMode() const { return focusMode_; }
 
     /// Return drag and drop flags.
-    unsigned GetDragDropMode() const { return dragDropMode_; }
+    DragAndDropModeFlags GetDragDropMode() const { return dragDropMode_; }
 
     /// Return applied style name. Return an empty string when the applied style is an 'auto' style (i.e. style derived from instance's type).
     const String& GetAppliedStyle() const;
@@ -669,7 +674,7 @@ protected:
     /// Child elements.
     Vector<SharedPtr<UIElement> > children_;
     /// Parent element.
-    UIElement* parent_;
+    UIElement* parent_{};
     /// Child element clipping border.
     IntRect clipBorder_;
     /// Colors.
@@ -677,65 +682,65 @@ protected:
     /// User variables.
     VariantMap vars_;
     /// Priority.
-    int priority_;
+    int priority_{};
     /// Bring to front when focused flag.
-    bool bringToFront_;
+    bool bringToFront_{};
     /// Bring to back when defocused flag.
-    bool bringToBack_;
+    bool bringToBack_{true};
     /// Clip children flag.
-    bool clipChildren_;
+    bool clipChildren_{};
     /// Sort children according to priority flag.
-    bool sortChildren_;
+    bool sortChildren_{true};
     /// Use derived opacity flag.
-    bool useDerivedOpacity_;
+    bool useDerivedOpacity_{true};
     /// Input enabled flag.
-    bool enabled_;
+    bool enabled_{};
     /// Last SetEnabled flag before any SetDeepEnabled.
-    bool enabledPrev_;
+    bool enabledPrev_{};
     /// Value editable flag.
-    bool editable_;
+    bool editable_{true};
     /// Selected flag.
-    bool selected_;
+    bool selected_{};
     /// Visible flag.
-    bool visible_;
+    bool visible_{true};
     /// Hovering flag.
-    bool hovering_;
+    bool hovering_{};
     /// Internally created flag.
-    bool internal_;
+    bool internal_{};
     /// Focus mode.
-    FocusMode focusMode_;
+    FocusMode focusMode_{FM_NOTFOCUSABLE};
     /// Drag and drop flags.
-    unsigned dragDropMode_;
+    DragAndDropModeFlags dragDropMode_{DD_DISABLED};
     /// Layout mode.
-    LayoutMode layoutMode_;
+    LayoutMode layoutMode_{LM_FREE};
     /// Layout spacing.
-    int layoutSpacing_;
+    int layoutSpacing_{};
     /// Layout borders.
-    IntRect layoutBorder_;
+    IntRect layoutBorder_{};
     /// Layout flex scale.
-    Vector2 layoutFlexScale_;
+    Vector2 layoutFlexScale_{Vector2::ONE};
     /// Resize nesting level to prevent multiple events and endless loop.
-    unsigned resizeNestingLevel_;
+    unsigned resizeNestingLevel_{};
     /// Layout update nesting level to prevent endless loop.
-    unsigned layoutNestingLevel_;
+    unsigned layoutNestingLevel_{};
     /// Layout element maximum size in layout direction.
-    int layoutElementMaxSize_;
+    int layoutElementMaxSize_{};
     /// Horizontal indentation.
-    int indent_;
+    int indent_{};
     /// Indent spacing (number of pixels per indentation level).
-    int indentSpacing_;
+    int indentSpacing_{16};
     /// Position.
-    IntVector2 position_;
+    IntVector2 position_{};
     /// Screen position.
     mutable IntVector2 screenPosition_;
     /// Screen position dirty flag.
-    mutable bool positionDirty_;
+    mutable bool positionDirty_{true};
     /// Applied style.
     String appliedStyle_;
     /// Drag button combo.
-    int dragButtonCombo_;
+    int dragButtonCombo_{};
     /// Drag button count.
-    unsigned dragButtonCount_;
+    unsigned dragButtonCount_{};
 
 private:
     /// Return child elements recursively.
@@ -764,7 +769,7 @@ private:
     /// Minimum size.
     IntVector2 minSize_;
     /// Maximum size.
-    IntVector2 maxSize_;
+    IntVector2 maxSize_{M_MAX_INT, M_MAX_INT};
     /// Child elements' offset. Used internally.
     IntVector2 childOffset_;
     /// Parent's minimum size calculated by layout. Used internally.
@@ -774,9 +779,9 @@ private:
     /// Maximum offset.
     IntVector2 maxOffset_;
     /// Use min/max anchor & min/max offset for position & size instead of setting explicitly.
-    bool enableAnchor_;
+    bool enableAnchor_{};
     /// Has pivot changed manually.
-    bool pivotSet_;
+    bool pivotSet_{};
     /// Anchor minimum position.
     Vector2 anchorMin_;
     /// Anchor maximum position.
@@ -784,27 +789,27 @@ private:
     /// Pivot Position
     Vector2 pivot_;
     /// Opacity.
-    float opacity_;
+    float opacity_{1.0f};
     /// Derived opacity.
-    mutable float derivedOpacity_;
+    mutable float derivedOpacity_{};
     /// Derived color. Only valid when no gradient.
     mutable Color derivedColor_;
     /// Derived opacity dirty flag.
-    mutable bool opacityDirty_;
+    mutable bool opacityDirty_{true};
     /// Derived color dirty flag (only used when no gradient.)
-    mutable bool derivedColorDirty_;
+    mutable bool derivedColorDirty_{true};
     /// Child priority sorting dirty flag.
-    bool sortOrderDirty_;
+    bool sortOrderDirty_{};
     /// Has color gradient flag.
-    bool colorGradient_;
+    bool colorGradient_{};
     /// Default style file.
     SharedPtr<XMLFile> defaultStyle_;
     /// Last applied style file.
     WeakPtr<XMLFile> appliedStyleFile_;
     /// Traversal mode for rendering.
-    TraversalMode traversalMode_;
+    TraversalMode traversalMode_{TM_BREADTH_FIRST};
     /// Flag whether node should send child added / removed events by itself.
-    bool elementEventSender_;
+    bool elementEventSender_{};
     /// XPath query for selecting UI-style.
     static XPathQuery styleXPathQuery_;
     /// Tag list.

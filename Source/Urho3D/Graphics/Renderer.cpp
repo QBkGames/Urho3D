@@ -267,40 +267,7 @@ inline PODVector<VertexElement> CreateInstancingBufferElements(unsigned numExtra
 
 Renderer::Renderer(Context* context) :
     Object(context),
-    defaultZone_(new Zone(context)),
-    shadowMapFilterInstance_(nullptr),
-    shadowMapFilter_(nullptr),
-    textureAnisotropy_(4),
-    textureFilterMode_(FILTER_TRILINEAR),
-    textureQuality_(QUALITY_HIGH),
-    materialQuality_(QUALITY_HIGH),
-    shadowMapSize_(1024),
-    shadowQuality_(SHADOWQUALITY_PCF_16BIT),
-    shadowSoftness_(1.0f),
-    vsmShadowParams_(0.0000001f, 0.9f),
-    vsmMultiSample_(1),
-    maxShadowMaps_(1),
-    minInstances_(2),
-    maxSortedInstances_(1000),
-    maxOccluderTriangles_(5000),
-    occlusionBufferSize_(256),
-    occluderSizeThreshold_(0.025f),
-    mobileShadowBiasMul_(1.0f),
-    mobileShadowBiasAdd_(0.0f),
-    mobileNormalOffsetMul_(1.0f),
-    numOcclusionBuffers_(0),
-    numShadowCameras_(0),
-    shadersChangedFrameNumber_(M_MAX_UNSIGNED),
-    hdrRendering_(false),
-    specularLighting_(true),
-    drawShadows_(true),
-    reuseShadowMaps_(true),
-    dynamicInstancing_(true),
-    numExtraInstancingBufferElements_(0),
-    threadedOcclusion_(false),
-    shadersDirty_(true),
-    initialized_(false),
-    resetViews_(false)
+    defaultZone_(new Zone(context))
 {
     SubscribeToEvent(E_SCREENMODE, URHO3D_HANDLER(Renderer, HandleScreenMode));
 
@@ -361,7 +328,7 @@ void Renderer::SetTextureFilterMode(TextureFilterMode mode)
     textureFilterMode_ = mode;
 }
 
-void Renderer::SetTextureQuality(int quality)
+void Renderer::SetTextureQuality(MaterialQuality quality)
 {
     quality = Clamp(quality, QUALITY_LOW, QUALITY_HIGH);
 
@@ -372,7 +339,7 @@ void Renderer::SetTextureQuality(int quality)
     }
 }
 
-void Renderer::SetMaterialQuality(int quality)
+void Renderer::SetMaterialQuality(MaterialQuality quality)
 {
     quality = Clamp(quality, QUALITY_LOW, QUALITY_MAX);
 
@@ -922,7 +889,7 @@ Texture2D* Renderer::GetShadowMap(Light* light, Camera* camera, unsigned viewWid
         height *= 3;
     }
 
-    int searchKey = (width << 16) | height;
+    int searchKey = width << 16u | height;
     if (shadowMaps_.Contains(searchKey))
     {
         // If shadow maps are reused, always return the first
@@ -1043,19 +1010,19 @@ Texture* Renderer::GetScreenBuffer(int width, int height, unsigned format, int m
     if (multiSample == 1)
         autoResolve = false;
 
-    long long searchKey = ((long long)format << 32) | (multiSample << 24) | (width << 12) | height;
+    auto searchKey = (unsigned long long)format << 32u | multiSample << 24u | width << 12u | height;
     if (filtered)
-        searchKey |= 0x8000000000000000LL;
+        searchKey |= 0x8000000000000000ULL;
     if (srgb)
-        searchKey |= 0x4000000000000000LL;
+        searchKey |= 0x4000000000000000ULL;
     if (cubemap)
-        searchKey |= 0x2000000000000000LL;
+        searchKey |= 0x2000000000000000ULL;
     if (autoResolve)
-        searchKey |= 0x1000000000000000LL;
+        searchKey |= 0x1000000000000000ULL;
 
     // Add persistent key if defined
     if (persistentKey)
-        searchKey += ((long long)persistentKey << 32);
+        searchKey += (unsigned long long)persistentKey << 32u;
 
     // If new size or format, initialize the allocation stats
     if (screenBuffers_.Find(searchKey) == screenBuffers_.End())
@@ -1574,9 +1541,9 @@ void Renderer::RemoveUnusedBuffers()
         }
     }
 
-    for (HashMap<long long, Vector<SharedPtr<Texture> > >::Iterator i = screenBuffers_.Begin(); i != screenBuffers_.End();)
+    for (HashMap<unsigned long long, Vector<SharedPtr<Texture> > >::Iterator i = screenBuffers_.Begin(); i != screenBuffers_.End();)
     {
-        HashMap<long long, Vector<SharedPtr<Texture> > >::Iterator current = i++;
+        HashMap<unsigned long long, Vector<SharedPtr<Texture> > >::Iterator current = i++;
         Vector<SharedPtr<Texture> >& buffers = current->second_;
         for (unsigned j = buffers.Size() - 1; j < buffers.Size(); --j)
         {
@@ -1604,7 +1571,7 @@ void Renderer::ResetShadowMapAllocations()
 
 void Renderer::ResetScreenBufferAllocations()
 {
-    for (HashMap<long long, unsigned>::Iterator i = screenBufferAllocations_.Begin(); i != screenBufferAllocations_.End(); ++i)
+    for (HashMap<unsigned long long, unsigned>::Iterator i = screenBufferAllocations_.Begin(); i != screenBufferAllocations_.End(); ++i)
         i->second_ = 0;
 }
 
@@ -1639,7 +1606,6 @@ void Renderer::Initialize()
     ResetShadowMaps();
     ResetBuffers();
 
-    shadersDirty_ = true;
     initialized_ = true;
 
     SubscribeToEvent(E_RENDERUPDATE, URHO3D_HANDLER(Renderer, HandleRenderUpdate));
@@ -1881,7 +1847,7 @@ void Renderer::SetIndirectionTextureData()
 
     for (unsigned i = 0; i < MAX_CUBEMAP_FACES; ++i)
     {
-        auto faceX = (unsigned char)((i & 1) * 255);
+        auto faceX = (unsigned char)((i & 1u) * 255);
         auto faceY = (unsigned char)((i / 2) * 255 / 3);
         unsigned char* dest = data;
         for (unsigned y = 0; y < 256; ++y)

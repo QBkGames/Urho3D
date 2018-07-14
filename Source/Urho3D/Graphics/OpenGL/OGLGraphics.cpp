@@ -223,40 +223,9 @@ bool Graphics::gl3Support = false;
 Graphics::Graphics(Context* context) :
     Object(context),
     impl_(new GraphicsImpl()),
-    window_(nullptr),
-    externalWindow_(nullptr),
-    width_(0),
-    height_(0),
     position_(SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED),
-    multiSample_(1),
-    fullscreen_(false),
-    borderless_(false),
-    resizable_(false),
-    highDPI_(false),
-    vsync_(false),
-    monitor_(0),
-    refreshRate_(0),
-    tripleBuffer_(false),
-    sRGB_(false),
-    forceGL2_(false),
-    instancingSupport_(false),
-    lightPrepassSupport_(false),
-    deferredSupport_(false),
-    anisotropySupport_(false),
-    dxtTextureSupport_(false),
-    etcTextureSupport_(false),
-    pvrtcTextureSupport_(false),
-    hardwareShadowSupport_(false),
-    sRGBSupport_(false),
-    sRGBWriteSupport_(false),
-    numPrimitives_(0),
-    numBatches_(0),
-    maxScratchBufferRequest_(0),
-    dummyColorFormat_(0),
     shadowMapFormat_(GL_DEPTH_COMPONENT16),
     hiresShadowMapFormat_(GL_DEPTH_COMPONENT24),
-    defaultTextureFilterMode_(FILTER_TRILINEAR),
-    defaultTextureAnisotropy_(4),
     shaderPath_("Shaders/GLSL/"),
     shaderExtension_(".glsl"),
     orientations_("LandscapeLeft LandscapeRight"),
@@ -690,7 +659,7 @@ void Graphics::EndFrame()
     CleanupScratchBuffers();
 }
 
-void Graphics::Clear(unsigned flags, const Color& color, float depth, unsigned stencil)
+void Graphics::Clear(ClearTargetFlags flags, const Color& color, float depth, unsigned stencil)
 {
     PrepareDraw();
 
@@ -1741,8 +1710,8 @@ void Graphics::SetDepthStencil(RenderSurface* depthStencil)
         // Check size similarly
         if (width <= width_ && height <= height_)
         {
-            int searchKey = (width << 16) | height;
-            HashMap<int, SharedPtr<Texture2D> >::Iterator i = impl_->depthTextures_.Find(searchKey);
+            unsigned searchKey = (width << 16u) | height;
+            HashMap<unsigned, SharedPtr<Texture2D> >::Iterator i = impl_->depthTextures_.Find(searchKey);
             if (i != impl_->depthTextures_.End())
                 depthStencil = i->second_->GetRenderSurface();
             else
@@ -2379,7 +2348,7 @@ ConstantBuffer* Graphics::GetOrCreateConstantBuffer(ShaderType /*type*/,  unsign
     // Note: shaderType parameter is not used on OpenGL, instead binding index should already use the PS range
     // for PS constant buffers
 
-    unsigned key = (index << 16) | size;
+    unsigned key = (index << 16u) | size;
     HashMap<unsigned, SharedPtr<ConstantBuffer> >::Iterator i = impl_->allConstantBuffers_.Find(key);
     if (i == impl_->allConstantBuffers_.End())
     {
@@ -2926,8 +2895,7 @@ void Graphics::PrepareDraw()
         else if (depthStencil_)
             format = depthStencil_->GetParentTexture()->GetFormat();
 
-        unsigned long long fboKey = (rtSize.x_ << 16 | rtSize.y_) | (((unsigned long long)format) << 32);
-
+        auto fboKey = (unsigned long long)format << 32u | rtSize.x_ << 16u | rtSize.y_;
         HashMap<unsigned long long, FrameBufferObject>::Iterator i = impl_->frameBuffers_.Find(fboKey);
         if (i == impl_->frameBuffers_.End())
         {
@@ -2955,7 +2923,7 @@ void Graphics::PrepareDraw()
         for (unsigned j = 0; j < MAX_RENDERTARGETS; ++j)
         {
             if (renderTargets_[j])
-                newDrawBuffers |= 1 << j;
+                newDrawBuffers |= 1u << j;
         }
 
         if (newDrawBuffers != i->second_.drawBuffers_)
@@ -3117,7 +3085,7 @@ void Graphics::PrepareDraw()
                 if (k != impl_->vertexAttributes_->End())
                 {
                     unsigned location = k->second_;
-                    unsigned locationMask = 1 << location;
+                    unsigned locationMask = 1u << location;
                     if (assignedLocations & locationMask)
                         continue; // Already assigned by higher index vertex buffer
                     assignedLocations |= locationMask;
@@ -3162,10 +3130,10 @@ void Graphics::PrepareDraw()
         unsigned location = 0;
         while (disableVertexAttributes)
         {
-            if (disableVertexAttributes & 1)
+            if (disableVertexAttributes & 1u)
             {
                 glDisableVertexAttribArray(location);
-                impl_->enabledVertexAttributes_ &= ~(1 << location);
+                impl_->enabledVertexAttributes_ &= ~(1u << location);
             }
             ++location;
             disableVertexAttributes >>= 1;
@@ -3193,11 +3161,10 @@ void Graphics::CleanupFramebuffers()
             DeleteFramebuffer(impl_->resolveDestFBO_);
     }
     else
-    {
         impl_->boundFBO_ = 0;
-        impl_->resolveSrcFBO_ = 0;
-        impl_->resolveDestFBO_ = 0;
-    }
+
+    impl_->resolveSrcFBO_ = 0;
+    impl_->resolveDestFBO_ = 0;
 
     impl_->frameBuffers_.Clear();
 }

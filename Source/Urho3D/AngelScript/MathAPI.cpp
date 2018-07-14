@@ -28,6 +28,9 @@
 #include "../Math/Ray.h"
 #include "../Math/Matrix2.h"
 
+// Some headers could re-define M_PI, ensure that it's undefined.
+#undef M_PI
+
 namespace Urho3D
 {
 
@@ -53,7 +56,8 @@ static void RegisterMathFunctions(asIScriptEngine* engine)
     engine->RegisterGlobalProperty("const uint M_MAX_UNSIGNED", (void*)&M_MAX_UNSIGNED);
 
     engine->RegisterGlobalFunction("bool Equals(float, float)", asFUNCTION(Equals<float>), asCALL_CDECL);
-    engine->RegisterGlobalFunction("bool IsNaN(float)", asFUNCTION(IsNaN), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool IsNaN(float)", asFUNCTIONPR(IsNaN, (float), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool IsNaN(double)", asFUNCTIONPR(IsNaN, (double), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("float Sin(float)", asFUNCTION(Sin<float>), asCALL_CDECL);
     engine->RegisterGlobalFunction("float Cos(float)", asFUNCTION(Cos<float>), asCALL_CDECL);
     engine->RegisterGlobalFunction("float Tan(float)", asFUNCTION(Tan<float>), asCALL_CDECL);
@@ -1430,7 +1434,7 @@ static void RegisterColor(asIScriptEngine* engine)
     engine->RegisterGlobalProperty("const Color CYAN", (void*)&Color::CYAN);
     engine->RegisterGlobalProperty("const Color MAGENTA", (void*)&Color::MAGENTA);
     engine->RegisterGlobalProperty("const Color YELLOW", (void*)&Color::YELLOW);
-    engine->RegisterGlobalProperty("const Color TRANSPARENT", (void*)&Color::TRANSPARENT);
+    engine->RegisterGlobalProperty("const Color TRANSPARENT_BLACK", (void*)&Color::TRANSPARENT_BLACK);
 }
 
 void RegisterMathAPI(asIScriptEngine* engine)

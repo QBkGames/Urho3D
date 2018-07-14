@@ -446,7 +446,7 @@ unsigned GetNumPhysicalCPUs()
     return SDL_TVOS_GetActiveProcessorCount();
 #endif
 #elif defined(__linux__)
-    struct CpuCoreCount data;
+    struct CpuCoreCount data{};
     GetCPUData(&data);
     return data.numPhysicalCores_;
 #elif defined(__EMSCRIPTEN__)
@@ -479,7 +479,7 @@ unsigned GetNumLogicalCPUs()
     return SDL_TVOS_GetActiveProcessorCount();
 #endif
 #elif defined(__linux__)
-    struct CpuCoreCount data;
+    struct CpuCoreCount data{};
     GetCPUData(&data);
     return data.numLogicalCores_;
 #elif defined(__EMSCRIPTEN__)
@@ -521,7 +521,7 @@ String GetMiniDumpDir()
 unsigned long long GetTotalMemory()
 {
 #if defined(__linux__) && !defined(__ANDROID__)
-    struct sysinfo s;
+    struct sysinfo s{};
     if (sysinfo(&s) != -1)
         return s.totalram;
 #elif defined(_WIN32)
@@ -607,7 +607,7 @@ static void GetOS(RTL_OSVERSIONINFOW *r)
 String GetOSVersion()
 {
 #if defined(__linux__) && !defined(__ANDROID__)
-    struct utsname u;
+    struct utsname u{};
     if (uname(&u) == 0)
         return String(u.sysname) + " " + u.release;
 #elif defined(_WIN32) && defined(HAVE_RTL_OSVERSIONINFOW) && !defined(MINI_URHO)
@@ -644,7 +644,29 @@ String GetOSVersion()
         int minor = ToInt(kernel_version[1]);
 
         // https://en.wikipedia.org/wiki/Darwin_(operating_system)
-        if (major == 16) // macOS Sierra
+        if (major == 18) // macOS Mojave
+        {
+            version += "Mojave ";
+            switch(minor)
+            {
+                case 0: version += "10.14.0 "; break;
+            }
+        }
+        else if (major == 17) // macOS High Sierra
+        {
+            version += "High Sierra ";
+            switch(minor)
+            {
+                case 0: version += "10.13.0 "; break;
+                case 2: version += "10.13.1 "; break;
+                case 3: version += "10.13.2 "; break;
+                case 4: version += "10.13.3 "; break;
+                case 5: version += "10.13.4 "; break;
+                case 6: version += "10.13.5 "; break;
+                case 7: version += "10.13.6 "; break;
+            }
+        }
+        else if (major == 16) // macOS Sierra
         {
             version += "Sierra ";
             switch(minor)
@@ -652,6 +674,10 @@ String GetOSVersion()
                 case 0: version += "10.12.0 "; break;
                 case 1: version += "10.12.1 "; break;
                 case 3: version += "10.12.2 "; break;
+                case 4: version += "10.12.3 "; break;
+                case 5: version += "10.12.4 "; break;
+                case 6: version += "10.12.5 "; break;
+                case 7: version += "10.12.6 "; break;
             }
         }
         else if (major == 15) // OS X El Capitan
@@ -659,7 +685,11 @@ String GetOSVersion()
             version += "El Capitan ";
             switch(minor)
             {
-                case 0: version += "10.11.0 "; break;
+                case 0: version += "10.11.0/10.11.1 "; break;
+                case 2: version += "10.11.2 "; break;
+                case 3: version += "10.11.3 "; break;
+                case 4: version += "10.11.4 "; break;
+                case 5: version += "10.11.5 "; break;
                 case 6: version += "10.11.6 "; break;
             }
         }

@@ -58,7 +58,7 @@ struct TechniqueEntry
     /// Construct with defaults.
     TechniqueEntry() noexcept;
     /// Construct with parameters.
-    TechniqueEntry(Technique* tech, unsigned qualityLevel, float lodDistance) noexcept;
+    TechniqueEntry(Technique* tech, MaterialQuality qualityLevel, float lodDistance) noexcept;
     /// Destruct.
     ~TechniqueEntry() noexcept = default;
 
@@ -67,7 +67,7 @@ struct TechniqueEntry
     /// Original technique, in case the material adds shader compilation defines. The modified clones are requested from it.
     SharedPtr<Technique> original_;
     /// Quality level.
-    int qualityLevel_;
+    MaterialQuality qualityLevel_;
     /// LOD distance.
     float lodDistance_;
 };
@@ -135,7 +135,7 @@ public:
     /// Set number of techniques.
     void SetNumTechniques(unsigned num);
     /// Set technique.
-    void SetTechnique(unsigned index, Technique* tech, unsigned qualityLevel = 0, float lodDistance = 0.0f);
+    void SetTechnique(unsigned index, Technique* tech, MaterialQuality qualityLevel = QUALITY_LOW, float lodDistance = 0.0f);
     /// Set additional vertex shader defines. Separate multiple defines with spaces. Setting defines at the material level causes technique(s) to be cloned as necessary.
     void SetVertexShaderDefines(const String& defines);
     /// Set additional pixel shader defines. Separate multiple defines with spaces. Setting defines at the material level causes technique(s) to be cloned as necessary.
@@ -294,31 +294,31 @@ private:
     /// Pixel shader defines.
     String pixelShaderDefines_;
     /// Normal culling mode.
-    CullMode cullMode_;
+    CullMode cullMode_{};
     /// Culling mode for shadow rendering.
-    CullMode shadowCullMode_;
+    CullMode shadowCullMode_{};
     /// Polygon fill mode.
-    FillMode fillMode_;
+    FillMode fillMode_{};
     /// Depth bias parameters.
-    BiasParameters depthBias_;
+    BiasParameters depthBias_{};
     /// Render order value.
-    unsigned char renderOrder_;
+    unsigned char renderOrder_{};
     /// Last auxiliary view rendered frame number.
-    unsigned auxViewFrameNumber_;
+    unsigned auxViewFrameNumber_{};
     /// Shader parameter hash value.
-    unsigned shaderParameterHash_;
+    unsigned shaderParameterHash_{};
     /// Alpha-to-coverage flag.
-    bool alphaToCoverage_;
+    bool alphaToCoverage_{};
     /// Line antialiasing flag.
-    bool lineAntiAlias_;
+    bool lineAntiAlias_{};
     /// Render occlusion flag.
-    bool occlusion_;
+    bool occlusion_{true};
     /// Specular lighting flag.
-    bool specular_;
+    bool specular_{};
     /// Flag for whether is subscribed to animation updates.
-    bool subscribed_;
+    bool subscribed_{};
     /// Flag to suppress parameter hash and memory use recalculation when setting multiple shader parameters (loading or resetting the material.)
-    bool batchedParameterUpdate_;
+    bool batchedParameterUpdate_{};
     /// XML file used while loading.
     SharedPtr<XMLFile> loadXMLFile_;
     /// JSON file used while loading.

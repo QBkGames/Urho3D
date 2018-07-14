@@ -94,52 +94,7 @@ XPathQuery UIElement::styleXPathQuery_("/elements/element[@type=$typeName]", "ty
 
 UIElement::UIElement(Context* context) :
     Animatable(context),
-    parent_(nullptr),
-    clipBorder_(IntRect::ZERO),
-    priority_(0),
-    bringToFront_(false),
-    bringToBack_(true),
-    clipChildren_(false),
-    sortChildren_(true),
-    useDerivedOpacity_(true),
-    editable_(true),
-    selected_(false),
-    visible_(true),
-    hovering_(false),
-    internal_(false),
-    focusMode_(FM_NOTFOCUSABLE),
-    dragDropMode_(DD_DISABLED),
-    layoutMode_(LM_FREE),
-    layoutSpacing_(0),
-    layoutBorder_(IntRect::ZERO),
-    layoutFlexScale_(Vector2::ONE),
-    resizeNestingLevel_(0),
-    layoutNestingLevel_(0),
-    layoutElementMaxSize_(0),
-    indent_(0),
-    indentSpacing_(16),
-    position_(IntVector2::ZERO),
-    positionDirty_(true),
-    dragButtonCombo_(0),
-    dragButtonCount_(0),
-    size_(IntVector2::ZERO),
-    minSize_(IntVector2::ZERO),
-    maxSize_(M_MAX_INT, M_MAX_INT),
-    childOffset_(IntVector2::ZERO),
-    opacity_(1.0f),
-    opacityDirty_(true),
-    derivedColorDirty_(true),
-    sortOrderDirty_(false),
-    colorGradient_(false),
-    traversalMode_(TM_BREADTH_FIRST),
-    elementEventSender_(false),
-    anchorMin_(Vector2::ZERO),
-    anchorMax_(Vector2::ZERO),
-    minOffset_(IntVector2::ZERO),
-    maxOffset_(IntVector2::ZERO),
-    enableAnchor_(false),
-    pivot_(std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
-    pivotSet_(false)
+    pivot_(std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
 {
     SetEnabled(false);
 }
@@ -190,7 +145,7 @@ void UIElement::RegisterObject(Context* context)
     URHO3D_ACCESSOR_ATTRIBUTE("Clip Children", GetClipChildren, SetClipChildren, bool, false, AM_FILE);
     URHO3D_ACCESSOR_ATTRIBUTE("Use Derived Opacity", GetUseDerivedOpacity, SetUseDerivedOpacity, bool, true, AM_FILE);
     URHO3D_ENUM_ACCESSOR_ATTRIBUTE("Focus Mode", GetFocusMode, SetFocusMode, FocusMode, focusModes, FM_NOTFOCUSABLE, AM_FILE);
-    URHO3D_ENUM_ACCESSOR_ATTRIBUTE("Drag And Drop Mode", GetDragDropMode, SetDragDropMode, unsigned, dragDropModes, DD_DISABLED, AM_FILE);
+    URHO3D_ENUM_ACCESSOR_ATTRIBUTE("Drag And Drop Mode", GetDragDropMode, SetDragDropMode, DragAndDropModeFlags, dragDropModes, DD_DISABLED, AM_FILE);
     URHO3D_ENUM_ACCESSOR_ATTRIBUTE("Layout Mode", GetLayoutMode, SetLayoutMode, LayoutMode, layoutModes, LM_FREE, AM_FILE);
     URHO3D_ACCESSOR_ATTRIBUTE("Layout Spacing", GetLayoutSpacing, SetLayoutSpacing, int, 0, AM_FILE);
     URHO3D_ACCESSOR_ATTRIBUTE("Layout Border", GetLayoutBorder, SetLayoutBorder, IntRect, IntRect::ZERO, AM_FILE);
@@ -1031,7 +986,7 @@ void UIElement::SetVisible(bool enable)
     }
 }
 
-void UIElement::SetDragDropMode(unsigned mode)
+void UIElement::SetDragDropMode(DragAndDropModeFlags mode)
 {
     dragDropMode_ = mode;
 }

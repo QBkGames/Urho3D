@@ -205,7 +205,7 @@ private:
     friend class TmxObjectGroup2D;
 
     /// Object type.
-    TileMapObjectType2D objectType_;
+    TileMapObjectType2D objectType_{};
     /// Name.
     String name_;
     /// Type.
@@ -217,7 +217,7 @@ private:
     /// Points(for polygon and polyline).
     Vector<Vector2> points_;
     /// Gid (for tile).
-    unsigned gid_;
+    unsigned gid_{};
     /// Sprite (for tile).
     SharedPtr<Sprite2D> sprite_;
     /// Property set.

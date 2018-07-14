@@ -54,7 +54,7 @@ MemoryBuffer::MemoryBuffer(PODVector<unsigned char>& data) :
 
 MemoryBuffer::MemoryBuffer(const PODVector<unsigned char>& data) :
     AbstractFile(data.Size()),
-    buffer_(data.Begin().ptr_),
+    buffer_(const_cast<unsigned char*>(data.Begin().ptr_)),
     readOnly_(true)
 {
 }
@@ -84,7 +84,7 @@ unsigned MemoryBuffer::Read(void* dest, unsigned size)
         srcPtr += sizeof(unsigned short);
         destPtr += sizeof(unsigned short);
     }
-    if (copySize & 1)
+    if (copySize & 1u)
         *destPtr = *srcPtr;
 
     return size;
@@ -124,7 +124,7 @@ unsigned MemoryBuffer::Write(const void* data, unsigned size)
         srcPtr += sizeof(unsigned short);
         destPtr += sizeof(unsigned short);
     }
-    if (copySize & 1)
+    if (copySize & 1u)
         *destPtr = *srcPtr;
 
     return size;

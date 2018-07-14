@@ -33,12 +33,16 @@
 namespace Urho3D
 {
 
-static const unsigned CLIPMASK_X_POS = 0x1;
-static const unsigned CLIPMASK_X_NEG = 0x2;
-static const unsigned CLIPMASK_Y_POS = 0x4;
-static const unsigned CLIPMASK_Y_NEG = 0x8;
-static const unsigned CLIPMASK_Z_POS = 0x10;
-static const unsigned CLIPMASK_Z_NEG = 0x20;
+enum ClipMask : unsigned
+{
+    CLIPMASK_X_POS = 0x1,
+    CLIPMASK_X_NEG = 0x2,
+    CLIPMASK_Y_POS = 0x4,
+    CLIPMASK_Y_NEG = 0x8,
+    CLIPMASK_Z_POS = 0x10,
+    CLIPMASK_Z_NEG = 0x20,
+};
+URHO3D_FLAGSET(ClipMask, ClipMaskFlags);
 
 void DrawOcclusionBatchWork(const WorkItem* item, unsigned threadIndex)
 {
@@ -48,16 +52,7 @@ void DrawOcclusionBatchWork(const WorkItem* item, unsigned threadIndex)
 }
 
 OcclusionBuffer::OcclusionBuffer(Context* context) :
-    Object(context),
-    width_(0),
-    height_(0),
-    numTriangles_(0),
-    maxTriangles_(OCCLUSION_DEFAULT_MAX_TRIANGLES),
-    cullMode_(CULL_CCW),
-    depthHierarchyDirty_(true),
-    reverseCulling_(false),
-    nearClip_(0.0f),
-    farClip_(0.0f)
+    Object(context)
 {
 }
 
@@ -66,7 +61,7 @@ OcclusionBuffer::~OcclusionBuffer() = default;
 bool OcclusionBuffer::SetSize(int width, int height, bool threaded)
 {
     // Force the height to an even amount of pixels for better mip generation
-    if (height & 1)
+    if (height & 1u)
         ++height;
 
     if (width == width_ && height == height_)
@@ -593,15 +588,15 @@ void OcclusionBuffer::CalculateViewport()
 
 void OcclusionBuffer::DrawTriangle(Vector4* vertices, unsigned threadIndex)
 {
-    unsigned clipMask = 0;
-    unsigned andClipMask = 0;
+    ClipMaskFlags clipMask{};
+    ClipMaskFlags andClipMask{};
     bool drawOk = false;
     Vector3 projected[3];
 
     // Build the clip plane mask for the triangle
     for (unsigned i = 0; i < 3; ++i)
     {
-        unsigned vertexClipMask = 0;
+        ClipMaskFlags vertexClipMask{};
 
         if (vertices[i].x_ > vertices[i].w_)
             vertexClipMask |= CLIPMASK_X_POS;
@@ -888,103 +883,120 @@ void OcclusionBuffer::DrawTriangle2D(const Vector3* vertices, bool clockwise, un
     if (!clockwise)
         middleIsRight = !middleIsRight;
 
+    const bool topDegenerate = topY == middleY;
+    const bool bottomDegenerate = middleY == bottomY;
+
     Gradients gradients(vertices);
-    Edge topToMiddle(gradients, vertices[top], vertices[middle], topY);
     Edge topToBottom(gradients, vertices[top], vertices[bottom], topY);
-    Edge middleToBottom(gradients, vertices[middle], vertices[bottom], middleY);
 
     int* bufferData = buffers_[threadIndex].data_;
 
     if (middleIsRight)
     {
         // Top half
-        int* row = bufferData + topY * width_;
-        int* endRow = bufferData + middleY * width_;
-        while (row < endRow)
+        if (!topDegenerate)
         {
-            int invZ = topToBottom.invZ_;
-            int* dest = row + (topToBottom.x_ >> 16);
-            int* end = row + (topToMiddle.x_ >> 16);
-            while (dest < end)
+            Edge topToMiddle(gradients, vertices[top], vertices[middle], topY);
+            int* row = bufferData + topY * width_;
+            int* endRow = bufferData + middleY * width_;
+            while (row < endRow)
             {
-                if (invZ < *dest)
-                    *dest = invZ;
-                invZ += gradients.dInvZdXInt_;
-                ++dest;
-            }
+                int invZ = topToBottom.invZ_;
+                int* dest = row + (topToBottom.x_ >> 16u);
+                int* end = row + (topToMiddle.x_ >> 16u);
+                while (dest < end)
+                {
+                    if (invZ < *dest)
+                        *dest = invZ;
+                    invZ += gradients.dInvZdXInt_;
+                    ++dest;
+                }
 
-            topToBottom.x_ += topToBottom.xStep_;
-            topToBottom.invZ_ += topToBottom.invZStep_;
-            topToMiddle.x_ += topToMiddle.xStep_;
-            row += width_;
+                topToBottom.x_ += topToBottom.xStep_;
+                topToBottom.invZ_ += topToBottom.invZStep_;
+                topToMiddle.x_ += topToMiddle.xStep_;
+                row += width_;
+            }
         }
 
         // Bottom half
-        row = bufferData + middleY * width_;
-        endRow = bufferData + bottomY * width_;
-        while (row < endRow)
+        if (!bottomDegenerate)
         {
-            int invZ = topToBottom.invZ_;
-            int* dest = row + (topToBottom.x_ >> 16);
-            int* end = row + (middleToBottom.x_ >> 16);
-            while (dest < end)
+            Edge middleToBottom(gradients, vertices[middle], vertices[bottom], middleY);
+            int* row = bufferData + middleY * width_;
+            int* endRow = bufferData + bottomY * width_;
+            while (row < endRow)
             {
-                if (invZ < *dest)
-                    *dest = invZ;
-                invZ += gradients.dInvZdXInt_;
-                ++dest;
-            }
+                int invZ = topToBottom.invZ_;
+                int* dest = row + (topToBottom.x_ >> 16u);
+                int* end = row + (middleToBottom.x_ >> 16u);
+                while (dest < end)
+                {
+                    if (invZ < *dest)
+                        *dest = invZ;
+                    invZ += gradients.dInvZdXInt_;
+                    ++dest;
+                }
 
-            topToBottom.x_ += topToBottom.xStep_;
-            topToBottom.invZ_ += topToBottom.invZStep_;
-            middleToBottom.x_ += middleToBottom.xStep_;
-            row += width_;
+                topToBottom.x_ += topToBottom.xStep_;
+                topToBottom.invZ_ += topToBottom.invZStep_;
+                middleToBottom.x_ += middleToBottom.xStep_;
+                row += width_;
+            }
         }
     }
     else
     {
         // Top half
-        int* row = bufferData + topY * width_;
-        int* endRow = bufferData + middleY * width_;
-        while (row < endRow)
+        if (!topDegenerate)
         {
-            int invZ = topToMiddle.invZ_;
-            int* dest = row + (topToMiddle.x_ >> 16);
-            int* end = row + (topToBottom.x_ >> 16);
-            while (dest < end)
+            Edge topToMiddle(gradients, vertices[top], vertices[middle], topY);
+            int* row = bufferData + topY * width_;
+            int* endRow = bufferData + middleY * width_;
+            while (row < endRow)
             {
-                if (invZ < *dest)
-                    *dest = invZ;
-                invZ += gradients.dInvZdXInt_;
-                ++dest;
-            }
+                int invZ = topToMiddle.invZ_;
+                int* dest = row + (topToMiddle.x_ >> 16u);
+                int* end = row + (topToBottom.x_ >> 16u);
+                while (dest < end)
+                {
+                    if (invZ < *dest)
+                        *dest = invZ;
+                    invZ += gradients.dInvZdXInt_;
+                    ++dest;
+                }
 
-            topToMiddle.x_ += topToMiddle.xStep_;
-            topToMiddle.invZ_ += topToMiddle.invZStep_;
-            topToBottom.x_ += topToBottom.xStep_;
-            row += width_;
+                topToMiddle.x_ += topToMiddle.xStep_;
+                topToMiddle.invZ_ += topToMiddle.invZStep_;
+                topToBottom.x_ += topToBottom.xStep_;
+                row += width_;
+            }
         }
 
         // Bottom half
-        row = bufferData + middleY * width_;
-        endRow = bufferData + bottomY * width_;
-        while (row < endRow)
+        if (!bottomDegenerate)
         {
-            int invZ = middleToBottom.invZ_;
-            int* dest = row + (middleToBottom.x_ >> 16);
-            int* end = row + (topToBottom.x_ >> 16);
-            while (dest < end)
+            Edge middleToBottom(gradients, vertices[middle], vertices[bottom], middleY);
+            int* row = bufferData + middleY * width_;
+            int* endRow = bufferData + bottomY * width_;
+            while (row < endRow)
             {
-                if (invZ < *dest)
-                    *dest = invZ;
-                invZ += gradients.dInvZdXInt_;
-                ++dest;
-            }
+                int invZ = middleToBottom.invZ_;
+                int* dest = row + (middleToBottom.x_ >> 16u);
+                int* end = row + (topToBottom.x_ >> 16u);
+                while (dest < end)
+                {
+                    if (invZ < *dest)
+                        *dest = invZ;
+                    invZ += gradients.dInvZdXInt_;
+                    ++dest;
+                }
 
-            middleToBottom.x_ += middleToBottom.xStep_;
-            middleToBottom.invZ_ += middleToBottom.invZStep_;
-            topToBottom.x_ += topToBottom.xStep_;
-            row += width_;
+                middleToBottom.x_ += middleToBottom.xStep_;
+                middleToBottom.invZ_ += middleToBottom.invZStep_;
+                topToBottom.x_ += topToBottom.xStep_;
+                row += width_;
+            }
         }
     }
 }

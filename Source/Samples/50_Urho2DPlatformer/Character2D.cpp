@@ -20,8 +20,6 @@
 // THE SOFTWARE.
 //
 
-#include <Urho3D/Urho3D.h>
-
 #include <Urho3D/Urho2D/AnimatedSprite2D.h>
 #include <Urho3D/Urho2D/AnimationSet2D.h>
 #include <Urho3D/Core/Context.h>
@@ -103,19 +101,19 @@ void Character2D::Update(float timeStep)
     // Set direction
     Vector2 moveDir = Vector2::ZERO; // Reset
 
-    if (input->GetKeyDown('A') || input->GetKeyDown(KEY_LEFT))
+    if (input->GetKeyDown(KEY_A) || input->GetKeyDown(KEY_LEFT))
     {
         moveDir = moveDir + Vector2::LEFT;
         animatedSprite->SetFlipX(false); // Flip sprite (reset to default play on the X axis)
     }
-    if (input->GetKeyDown('D') || input->GetKeyDown(KEY_RIGHT))
+    if (input->GetKeyDown(KEY_D) || input->GetKeyDown(KEY_RIGHT))
     {
         moveDir = moveDir + Vector2::RIGHT;
         animatedSprite->SetFlipX(true); // Flip sprite (flip animation on the X axis)
     }
 
     // Jump
-    if ((onGround || aboveClimbable_) && (input->GetKeyPress('W') || input->GetKeyPress(KEY_UP)))
+    if ((onGround || aboveClimbable_) && (input->GetKeyPress(KEY_W) || input->GetKeyPress(KEY_UP)))
         jump = true;
 
     // Climb

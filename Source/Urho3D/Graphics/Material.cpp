@@ -74,7 +74,7 @@ static const char* textureUnitNames[] =
     "lightramp",
     "lightshape",
     "shadowmap",
-    0
+    nullptr
 #endif
 };
 
@@ -166,12 +166,12 @@ bool CompareTechniqueEntries(const TechniqueEntry& lhs, const TechniqueEntry& rh
 }
 
 TechniqueEntry::TechniqueEntry() noexcept :
-    qualityLevel_(0),
+    qualityLevel_(QUALITY_LOW),
     lodDistance_(0.0f)
 {
 }
 
-TechniqueEntry::TechniqueEntry(Technique* tech, unsigned qualityLevel, float lodDistance) noexcept :
+TechniqueEntry::TechniqueEntry(Technique* tech, MaterialQuality qualityLevel, float lodDistance) noexcept :
     technique_(tech),
     original_(tech),
     qualityLevel_(qualityLevel),
@@ -196,15 +196,7 @@ void ShaderParameterAnimationInfo::ApplyValue(const Variant& newValue)
 }
 
 Material::Material(Context* context) :
-    Resource(context),
-    auxViewFrameNumber_(0),
-    shaderParameterHash_(0),
-    alphaToCoverage_(false),
-    lineAntiAlias_(false),
-    occlusion_(true),
-    specular_(false),
-    subscribed_(false),
-    batchedParameterUpdate_(false)
+    Resource(context)
 {
     ResetToDefaults();
 }
@@ -432,7 +424,7 @@ bool Material::Load(const XMLElement& source)
             TechniqueEntry newTechnique;
             newTechnique.technique_ = newTechnique.original_ = tech;
             if (techniqueElem.HasAttribute("quality"))
-                newTechnique.qualityLevel_ = techniqueElem.GetInt("quality");
+                newTechnique.qualityLevel_ = (MaterialQuality)techniqueElem.GetInt("quality");
             if (techniqueElem.HasAttribute("loddistance"))
                 newTechnique.lodDistance_ = techniqueElem.GetFloat("loddistance");
             techniques_.Push(newTechnique);
@@ -587,7 +579,7 @@ bool Material::Load(const JSONValue& source)
             newTechnique.technique_ = newTechnique.original_ = tech;
             JSONValue qualityVal = techVal.Get("quality");
             if (!qualityVal.IsNull())
-                newTechnique.qualityLevel_ = qualityVal.GetInt();
+                newTechnique.qualityLevel_ = (MaterialQuality)qualityVal.GetInt();
             JSONValue lodDistanceVal = techVal.Get("loddistance");
             if (!lodDistanceVal.IsNull())
                 newTechnique.lodDistance_ = lodDistanceVal.GetFloat();
@@ -931,7 +923,7 @@ void Material::SetNumTechniques(unsigned num)
     RefreshMemoryUse();
 }
 
-void Material::SetTechnique(unsigned index, Technique* tech, unsigned qualityLevel, float lodDistance)
+void Material::SetTechnique(unsigned index, Technique* tech, MaterialQuality qualityLevel, float lodDistance)
 {
     if (index >= techniques_.Size())
         return;

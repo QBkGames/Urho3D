@@ -59,12 +59,6 @@ struct CollisionGeometryData;
 /// Physics raycast hit.
 struct URHO3D_API PhysicsRaycastResult
 {
-    /// Construct with defaults.
-    PhysicsRaycastResult() :
-        body_(nullptr)
-    {
-    }
-
     /// Test for inequality, added to prevent GCC from complaining.
     bool operator !=(const PhysicsRaycastResult& rhs) const
     {
@@ -76,11 +70,11 @@ struct URHO3D_API PhysicsRaycastResult
     /// Hit worldspace normal.
     Vector3 normal_;
     /// Hit distance from ray origin.
-    float distance_;
+    float distance_{};
     /// Hit fraction.
-    float hitFraction_;
+    float hitFraction_{};
     /// Rigid body that was hit.
-    RigidBody* body_;
+    RigidBody* body_{};
 };
 
 /// Delayed world transform assignment for parented rigidbodies.
@@ -124,6 +118,7 @@ struct PhysicsWorldConfig
     btCollisionConfiguration* collisionConfig_;
 };
 
+static const int DEFAULT_FPS = 60;
 static const float DEFAULT_MAX_NETWORK_ANGULAR_VELOCITY = 100.0f;
 
 /// Cache of collision geometry data.
@@ -194,7 +189,8 @@ public:
     /// Perform a physics world raycast and return the closest hit.
     void RaycastSingle(PhysicsRaycastResult& result, const Ray& ray, float maxDistance, unsigned collisionMask = M_MAX_UNSIGNED);
     /// Perform a physics world segmented raycast and return the closest hit. Useful for big scenes with many bodies.
-    void RaycastSingleSegmented(PhysicsRaycastResult& result, const Ray& ray, float maxDistance, float segmentDistance, unsigned collisionMask = M_MAX_UNSIGNED);
+    /// overlapDistance is used to make sure there are no gap between segments, and must be smaller than segmentDistance.
+    void RaycastSingleSegmented(PhysicsRaycastResult& result, const Ray& ray, float maxDistance, float segmentDistance, unsigned collisionMask = M_MAX_UNSIGNED, float overlapDistance = 0.1f);
     /// Perform a physics world swept sphere test and return the closest hit.
     void SphereCast
         (PhysicsRaycastResult& result, const Ray& ray, float radius, float maxDistance, unsigned collisionMask = M_MAX_UNSIGNED);
@@ -305,7 +301,7 @@ private:
     void SendCollisionEvents();
 
     /// Bullet collision configuration.
-    btCollisionConfiguration* collisionConfiguration_;
+    btCollisionConfiguration* collisionConfiguration_{};
     /// Bullet collision dispatcher.
     UniquePtr<btDispatcher> collisionDispatcher_;
     /// Bullet collision broadphase.
@@ -341,29 +337,29 @@ private:
     /// Preallocated buffer for physics collision contact data.
     VectorBuffer contacts_;
     /// Simulation substeps per second.
-    unsigned fps_;
+    unsigned fps_{DEFAULT_FPS};
     /// Maximum number of simulation substeps per frame. 0 (default) unlimited, or negative values for adaptive timestep.
-    int maxSubSteps_;
+    int maxSubSteps_{};
     /// Time accumulator for non-interpolated mode.
-    float timeAcc_;
+    float timeAcc_{};
     /// Maximum angular velocity for network replication.
-    float maxNetworkAngularVelocity_;
+    float maxNetworkAngularVelocity_{DEFAULT_MAX_NETWORK_ANGULAR_VELOCITY};
     /// Automatic simulation update enabled flag.
-    bool updateEnabled_;
+    bool updateEnabled_{true};
     /// Interpolation flag.
-    bool interpolation_;
+    bool interpolation_{true};
     /// Use internal edge utility flag.
-    bool internalEdge_;
+    bool internalEdge_{true};
     /// Applying transforms flag.
-    bool applyingTransforms_;
+    bool applyingTransforms_{};
     /// Simulating flag.
-    bool simulating_;
+    bool simulating_{};
     /// Debug draw depth test mode.
-    bool debugDepthTest_;
+    bool debugDepthTest_{};
     /// Debug renderer.
-    DebugRenderer* debugRenderer_;
+    DebugRenderer* debugRenderer_{};
     /// Debug draw flags.
-    int debugMode_;
+    int debugMode_{};
 };
 
 /// Register Physics library objects.

@@ -37,12 +37,6 @@ class RigidBody2D;
 /// 2D Physics raycast hit.
 struct URHO3D_API PhysicsRaycastResult2D
 {
-    /// Construct with defaults.
-    PhysicsRaycastResult2D() :
-        body_(nullptr)
-    {
-    }
-
     /// Test for inequality, added to prevent GCC from complaining.
     bool operator !=(const PhysicsRaycastResult2D& rhs) const
     {
@@ -54,9 +48,9 @@ struct URHO3D_API PhysicsRaycastResult2D
     /// Hit worldspace normal.
     Vector2 normal_;
     /// Hit distance from ray origin.
-    float distance_;
+    float distance_{};
     /// Rigid body that was hit.
-    RigidBody2D* body_;
+    RigidBody2D* body_{};
 };
 
 /// Delayed world transform assignment for parented 2D rigidbodies.
@@ -227,23 +221,23 @@ protected:
     /// Gravity.
     Vector2 gravity_;
     /// Velocity iterations.
-    int velocityIterations_;
+    int velocityIterations_{};
     /// Position iterations.
-    int positionIterations_;
+    int positionIterations_{};
 
     /// Extra weak pointer to scene to allow for cleanup in case the world is destroyed before other components.
     WeakPtr<Scene> scene_;
     /// Debug renderer.
-    DebugRenderer* debugRenderer_;
+    DebugRenderer* debugRenderer_{};
     /// Debug draw depth test mode.
-    bool debugDepthTest_;
+    bool debugDepthTest_{};
 
     /// Automatic simulation update enabled flag.
-    bool updateEnabled_;
+    bool updateEnabled_{true};
     /// Whether is currently stepping the world. Used internally.
-    bool physicsStepping_;
+    bool physicsStepping_{};
     /// Applying transforms.
-    bool applyingTransforms_;
+    bool applyingTransforms_{};
     /// Rigid bodies.
     Vector<WeakPtr<RigidBody2D> > rigidBodies_;
     /// Delayed (parented) world transform assignments.
@@ -272,13 +266,13 @@ protected:
         /// Shape B.
         SharedPtr<CollisionShape2D> shapeB_;
         /// Number of contact points.
-        int numPoints_;
+        int numPoints_{};
         /// Contact normal in world space.
         Vector2 worldNormal_;
         /// Contact positions in world space.
         Vector2 worldPositions_[b2_maxManifoldPoints];
         /// Contact overlap values.
-        float separations_[b2_maxManifoldPoints];
+        float separations_[b2_maxManifoldPoints]{};
     };
     /// Begin contact infos.
     Vector<ContactInfo> beginContactInfos_;

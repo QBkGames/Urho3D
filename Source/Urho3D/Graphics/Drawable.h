@@ -89,19 +89,19 @@ struct URHO3D_API SourceBatch
     SourceBatch& operator =(const SourceBatch& rhs);
 
     /// Distance from camera.
-    float distance_;
+    float distance_{};
     /// Geometry.
-    Geometry* geometry_;
+    Geometry* geometry_{};
     /// Material.
     SharedPtr<Material> material_;
     /// World transform(s). For a skinned model, these are the bone transforms.
-    const Matrix3x4* worldTransform_;
+    const Matrix3x4* worldTransform_{&Matrix3x4::IDENTITY};
     /// Number of world transforms.
-    unsigned numWorldTransforms_;
+    unsigned numWorldTransforms_{1};
     /// Per-instance data. If not null, must contain enough data to fill instancing buffer.
-    void* instancingData_;
+    void* instancingData_{};
     /// %Geometry type.
-    GeometryType geometryType_;
+    GeometryType geometryType_{GEOM_STATIC};
 };
 
 /// Base class for visible components.
@@ -243,7 +243,7 @@ public:
     void LimitVertexLights(bool removeConvertedLights);
 
     /// Set base pass flag for a batch.
-    void SetBasePass(unsigned batchIndex) { basePassFlags_ |= (1 << batchIndex); }
+    void SetBasePass(unsigned batchIndex) { basePassFlags_ |= (1u << batchIndex); }
 
     /// Return octree octant.
     Octant* GetOctant() const { return octant_; }
@@ -267,7 +267,7 @@ public:
     bool IsInView(const FrameInfo& frame, bool anyCamera = false) const;
 
     /// Return whether has a base pass.
-    bool HasBasePass(unsigned batchIndex) const { return (basePassFlags_ & (1 << batchIndex)) != 0; }
+    bool HasBasePass(unsigned batchIndex) const { return (basePassFlags_ & (1u << batchIndex)) != 0; }
 
     /// Return per-pixel lights.
     const PODVector<Light*>& GetLights() const { return lights_; }

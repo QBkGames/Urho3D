@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API CollisionCircle2D : public CollisionShape2D
 {
     URHO3D_OBJECT(CollisionCircle2D, CollisionShape2D);
+	MANAGED_OBJECT(CollisionCircle2D);
 
 public:
     /// Construct.

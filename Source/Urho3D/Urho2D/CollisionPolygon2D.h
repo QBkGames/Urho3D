@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API CollisionPolygon2D : public CollisionShape2D
 {
     URHO3D_OBJECT(CollisionPolygon2D, CollisionShape2D);
+	MANAGED_OBJECT(CollisionPolygon2D);
 
 public:
     /// Construct.

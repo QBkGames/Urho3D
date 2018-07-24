@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API ConstraintMouse2D : public Constraint2D
 {
     URHO3D_OBJECT(ConstraintMouse2D, Constraint2D);
+	MANAGED_OBJECT(ConstraintMouse2D);
 
 public:
     /// Construct.

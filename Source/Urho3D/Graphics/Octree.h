@@ -44,6 +44,8 @@ public:
     /// Destruct. Move drawables to root if available (detach if not) and free child octants.
     virtual ~Octant();
 
+	MANAGED_OBJECT(Octant);
+
     /// Return or create a child octant.
     Octant* GetOrCreateChild(unsigned index);
     /// Delete child octant.

@@ -50,6 +50,7 @@ enum CollisionEventMode
 class URHO3D_API RigidBody : public Component, public btMotionState
 {
     URHO3D_OBJECT(RigidBody, Component);
+	MANAGED_OBJECT(RigidBody);
 
 public:
     /// Construct.

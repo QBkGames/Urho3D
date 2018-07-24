@@ -34,6 +34,7 @@ class DynamicNavigationMesh;
 class URHO3D_API Obstacle : public Component
 {
     URHO3D_OBJECT(Obstacle, Component)
+	MANAGED_OBJECT(Obstacle);
 
     friend class DynamicNavigationMesh;
 

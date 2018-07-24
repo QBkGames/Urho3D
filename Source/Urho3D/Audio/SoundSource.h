@@ -39,6 +39,7 @@ static const int STREAM_BUFFER_LENGTH = 100;
 class URHO3D_API SoundSource : public Component
 {
     URHO3D_OBJECT(SoundSource, Component);
+	MANAGED_OBJECT(SoundSource);
 
 public:
     /// Construct.

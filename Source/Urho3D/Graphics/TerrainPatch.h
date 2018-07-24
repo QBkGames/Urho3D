@@ -35,6 +35,7 @@ class VertexBuffer;
 class URHO3D_API TerrainPatch : public Drawable
 {
     URHO3D_OBJECT(TerrainPatch, Drawable);
+	MANAGED_OBJECT(TerrainPatch);
 
 public:
     /// Construct.

@@ -72,6 +72,7 @@ enum NavigationPushiness
 class URHO3D_API CrowdAgent : public Component
 {
     URHO3D_OBJECT(CrowdAgent, Component);
+	MANAGED_OBJECT(CrowdAgent);
 
     friend class CrowdManager;
     friend void CrowdAgentUpdateCallback(dtCrowdAgent* ag, float dt);

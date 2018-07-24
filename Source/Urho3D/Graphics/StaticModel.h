@@ -42,6 +42,7 @@ struct StaticModelGeometryData
 class URHO3D_API StaticModel : public Drawable
 {
     URHO3D_OBJECT(StaticModel, Drawable);
+	MANAGED_OBJECT(StaticModel);
 
 public:
     /// Construct.

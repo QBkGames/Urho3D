@@ -35,6 +35,7 @@ class Node;
 class URHO3D_API IKConstraint : public Component
 {
     URHO3D_OBJECT(IKConstraint, Component)
+	MANAGED_OBJECT(IKConstraint);
 
 public:
 

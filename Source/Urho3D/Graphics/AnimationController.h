@@ -84,6 +84,7 @@ struct URHO3D_API AnimationControl
 class URHO3D_API AnimationController : public Component
 {
     URHO3D_OBJECT(AnimationController, Component);
+	MANAGED_OBJECT(AnimationController);
 
 public:
     /// Construct.

@@ -61,6 +61,7 @@ struct URHO3D_API Billboard
 class URHO3D_API BillboardSet : public Drawable
 {
     URHO3D_OBJECT(BillboardSet, Drawable);
+	MANAGED_OBJECT(BillboardSet);
 
 public:
     /// Construct.

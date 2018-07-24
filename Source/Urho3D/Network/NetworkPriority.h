@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API NetworkPriority : public Component
 {
     URHO3D_OBJECT(NetworkPriority, Component);
+	MANAGED_OBJECT(NetworkPriority);
 
 public:
     /// Construct.

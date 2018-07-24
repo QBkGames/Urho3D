@@ -33,6 +33,7 @@ struct RaycastVehicleData;
 class URHO3D_API RaycastVehicle : public LogicComponent
 {
     URHO3D_OBJECT(RaycastVehicle, LogicComponent)
+	MANAGED_OBJECT(RaycastVehicle);
 
 public:
     /// Construct.

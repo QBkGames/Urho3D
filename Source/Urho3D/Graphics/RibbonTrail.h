@@ -63,6 +63,7 @@ struct URHO3D_API TrailPoint
 class URHO3D_API RibbonTrail : public Drawable
 {
     URHO3D_OBJECT(RibbonTrail, Drawable);
+	MANAGED_OBJECT(RibbonTrail);
 
 public:
     /// Construct.

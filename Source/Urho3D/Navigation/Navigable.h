@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API Navigable : public Component
 {
     URHO3D_OBJECT(Navigable, Component);
+	MANAGED_OBJECT(Navigable);
 
 public:
     /// Construct.

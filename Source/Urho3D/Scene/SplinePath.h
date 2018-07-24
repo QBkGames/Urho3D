@@ -39,6 +39,7 @@ namespace Urho3D
 class URHO3D_API SplinePath : public Component
 {
     URHO3D_OBJECT(SplinePath, Component)
+	MANAGED_OBJECT(SplinePath);
 
 public:
     /// Construct an Empty SplinePath.

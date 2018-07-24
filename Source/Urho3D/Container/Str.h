@@ -161,11 +161,7 @@ public:
     }
 
     /// Destruct.
-    ~String()
-    {
-        if (capacity_)
-            delete[] buffer_;
-    }
+	~String();
 
     /// Assign a string.
     String& operator =(const String& rhs)
@@ -567,26 +563,6 @@ inline String operator +(const wchar_t* lhs, const String& rhs)
     ret += rhs;
     return ret;
 }
-
-/// Only meant as a temporary wrapper around a const char*. Only supports const functions as it does not own the char buffer.
-/// Calling functions that change the char buffer can result in memory corruptions.
-class URHO3D_API ConstString : public String
-{
-public:
-	/// Construct from another string.
-	ConstString(const String& str)
-	{
-		length_ = str.Length();
-		buffer_ = (char*)str.CString();
-	}
-
-	/// Construct from a C string.
-	ConstString(const char* str)
-	{
-		length_ = CStringLength(str);
-		buffer_ = (char*)str;
-	}
-};
 
 /// Wide character string. Only meant for converting from String and passing to the operating system where necessary.
 class URHO3D_API WString

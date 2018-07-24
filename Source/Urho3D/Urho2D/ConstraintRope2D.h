@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API ConstraintRope2D : public Constraint2D
 {
     URHO3D_OBJECT(ConstraintRope2D, Constraint2D);
+	MANAGED_OBJECT(ConstraintRope2D);
 
 public:
     /// Construct.

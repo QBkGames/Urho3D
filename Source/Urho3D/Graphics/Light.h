@@ -148,6 +148,7 @@ struct URHO3D_API FocusParameters
 class URHO3D_API Light : public Drawable
 {
     URHO3D_OBJECT(Light, Drawable);
+	MANAGED_OBJECT(Light);
 
 public:
     /// Construct.

@@ -37,7 +37,9 @@ public:
     /// Register object factory.
     static void RegisterObject(Context* context);
 
-    /// Return type of the stored component.
+	MANAGED_OBJECT(UnknownComponent);
+	
+	/// Return type of the stored component.
     StringHash GetType() const override { return typeHash_; }
 
     /// Return type name of the stored component.

@@ -42,6 +42,7 @@ URHO3D_FLAGSET(SmoothingType, SmoothingTypeFlags);
 class URHO3D_API SmoothedTransform : public Component
 {
     URHO3D_OBJECT(SmoothedTransform, Component);
+	MANAGED_OBJECT(SmoothedTransform);
 
 public:
     /// Construct.

@@ -67,6 +67,8 @@ struct URHO3D_API NodeImpl
     StringHash nameHash_;
     /// Attribute buffer for network updates.
     mutable VectorBuffer attrBuffer_;
+
+	MANAGED_OBJECT(NodeImpl);
 };
 
 /// %Scene node that may contain components and child nodes.
@@ -83,6 +85,8 @@ public:
     ~Node() override;
     /// Register object factory.
     static void RegisterObject(Context* context);
+
+	MANAGED_OBJECT(Node);
 
     /// Load from binary data. Return true if successful.
     bool Load(Deserializer& source) override;

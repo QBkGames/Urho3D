@@ -48,6 +48,7 @@ class VertexBuffer;
 class URHO3D_API CustomGeometry : public Drawable
 {
     URHO3D_OBJECT(CustomGeometry, Drawable);
+	MANAGED_OBJECT(CustomGeometry);
 
 public:
     /// Construct.

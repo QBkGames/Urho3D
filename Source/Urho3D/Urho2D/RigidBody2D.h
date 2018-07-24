@@ -45,6 +45,7 @@ enum BodyType2D
 class URHO3D_API RigidBody2D : public Component
 {
     URHO3D_OBJECT(RigidBody2D, Component);
+	MANAGED_OBJECT(RigidBody2D);
 
 public:
     /// Construct.

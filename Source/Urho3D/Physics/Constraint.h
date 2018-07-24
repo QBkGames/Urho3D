@@ -46,6 +46,7 @@ class RigidBody;
 class URHO3D_API Constraint : public Component
 {
     URHO3D_OBJECT(Constraint, Component);
+	MANAGED_OBJECT(Constraint);
 
     friend class RigidBody;
 

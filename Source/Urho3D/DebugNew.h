@@ -26,7 +26,7 @@
 // using DebugNew.h is by no means mandatory, but just a debugging convenience.
 
 #pragma once
-
+/*
 #if defined(_MSC_VER) && defined(_DEBUG)
 
 #define _CRTDBG_MAP_ALLOC
@@ -41,3 +41,4 @@
 #define new _DEBUG_NEW
 
 #endif
+*/

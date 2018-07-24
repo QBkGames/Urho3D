@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API ConstraintDistance2D : public Constraint2D
 {
     URHO3D_OBJECT(ConstraintDistance2D, Constraint2D);
+	MANAGED_OBJECT(ConstraintDistance2D);
 
 public:
     /// Construct.

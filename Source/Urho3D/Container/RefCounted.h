@@ -24,9 +24,12 @@
 
 #ifdef URHO3D_IS_BUILDING
 #include "Urho3D.h"
+#include <MemoryCache\ManagedObject.h>
 #else
 #include <Urho3D/Urho3D.h>
+#include <MemoryCache\ManagedObject.h>
 #endif
+using namespace EnginePlus;
 
 namespace Urho3D
 {
@@ -48,6 +51,8 @@ struct RefCount
         refs_ = -1;
         weakRefs_ = -1;
     }
+
+	MANAGED_OBJECT(RefCount);
 
     /// Reference count. If below zero, the object has been destroyed.
     int refs_;

@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API OffMeshConnection : public Component
 {
     URHO3D_OBJECT(OffMeshConnection, Component);
+	MANAGED_OBJECT(OffMeshConnection);
 
 public:
     /// Construct.

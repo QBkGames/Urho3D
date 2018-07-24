@@ -1,5 +1,9 @@
+#pragma once
+#ifndef _MANAGEDOBJECT_H_
+#define _MANAGEDOBJECT_H_
+
 //
-// Copyright (c) 2008-2018 the Urho3D project.
+// Copyright (c) 2018 QB'k Games.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,35 +24,19 @@
 // THE SOFTWARE.
 //
 
-#pragma once
+#include "MemoryMgr.h"
 
-#include "../Urho2D/StaticSprite2D.h"
-
-namespace Urho3D
+namespace EnginePlus
 {
-/// Stretchable sprite component.
-class URHO3D_API StretchableSprite2D : public StaticSprite2D
-{
-    URHO3D_OBJECT(StretchableSprite2D, StaticSprite2D);
-	MANAGED_OBJECT(StretchableSprite2D);
+#define MANAGED_OBJECT(classType)	\
+	public:	\
+		static void* operator new(size_t size)	{ return CMemoryMgr::Instance().Allocate(size); }	\
+		static void operator delete(void* pData)	{ CMemoryMgr::Instance().Free(pData, sizeof(classType)); }
 
-public:
-    /// Construct.
-    explicit StretchableSprite2D(Context* context);
-    /// Register object factory. Drawable2D must be registered first.
-    static void RegisterObject(Context* context);
-
-    /// Set border as number of pixels from each side.
-    void SetBorder(const IntRect& border);
-    /// Get border as number of pixels from each side.
-    const IntRect& GetBorder() const { return border_; }
-
-protected:
-    /// Update source batches.
-    void UpdateSourceBatches() override;
-
-    /// The border, represented by the number of pixels from each side.
-    IntRect border_; // absolute border in pixels
-};
-
+#define RECYCLABLE_OBJECT(classType)	\
+	public:	\
+		static classType* Retrive()	{ return new(CMemoryMgr::Instance().Allocate(sizeof(classType))) classType(); }	\
+		static void Recycle(classType* pObject)	{ pObject->~classType(); CMemoryMgr::Instance().Free(pObject, sizeof(classType)); }
 }
+
+#endif

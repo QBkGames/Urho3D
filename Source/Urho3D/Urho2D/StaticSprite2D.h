@@ -33,6 +33,7 @@ class Sprite2D;
 class URHO3D_API StaticSprite2D : public Drawable2D
 {
     URHO3D_OBJECT(StaticSprite2D, Drawable2D);
+	MANAGED_OBJECT(StaticSprite2D);
 
 public:
     /// Construct.

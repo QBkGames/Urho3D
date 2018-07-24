@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API SoundListener : public Component
 {
     URHO3D_OBJECT(SoundListener, Component);
+	MANAGED_OBJECT(SoundListener);
 
 public:
     /// Construct.

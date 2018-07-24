@@ -55,6 +55,7 @@ class AnimationSet2D;
 class URHO3D_API AnimatedSprite2D : public StaticSprite2D
 {
     URHO3D_OBJECT(AnimatedSprite2D, StaticSprite2D);
+	MANAGED_OBJECT(AnimatedSprite2D);
 
 public:
     /// Construct.

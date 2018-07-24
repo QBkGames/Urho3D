@@ -30,6 +30,7 @@ using namespace Urho3D;
 class Mover : public LogicComponent
 {
     URHO3D_OBJECT(Mover, LogicComponent);
+	MANAGED_OBJECT(Mover);
 
 public:
     /// Construct.

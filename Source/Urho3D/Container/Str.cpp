@@ -21,10 +21,10 @@
 //
 
 #include "../Precompiled.h"
-
 #include "../IO/Log.h"
 
 #include <cstdio>
+#include <MemoryCache/MemoryMgr.h>
 
 #include "../DebugNew.h"
 
@@ -175,6 +175,12 @@ String::String(char value, unsigned length) :
     Resize(length);
     for (unsigned i = 0; i < length; ++i)
         buffer_[i] = value;
+}
+
+String::~String()
+{
+	if (capacity_)
+		CMemoryMgr::Instance().Free(buffer_, capacity_);
 }
 
 String& String::operator +=(int rhs)
@@ -428,21 +434,23 @@ void String::Resize(unsigned newLength)
         if (capacity_ < MIN_CAPACITY)
             capacity_ = MIN_CAPACITY;
 
-        buffer_ = new char[capacity_];
+        buffer_ = (char*)CMemoryMgr::Instance().Allocate(capacity_);
     }
     else
     {
         if (newLength && capacity_ < newLength + 1)
         {
+			unsigned uPrevCapacity = capacity_;
+
             // Increase the capacity with half each time it is exceeded
             while (capacity_ < newLength + 1)
                 capacity_ += (capacity_ + 1) >> 1u;
 
-            auto* newBuffer = new char[capacity_];
+            char* newBuffer = (char*)CMemoryMgr::Instance().Allocate(capacity_);
             // Move the existing data to the new buffer, then delete the old buffer
             if (length_)
                 CopyChars(newBuffer, buffer_, length_);
-            delete[] buffer_;
+			CMemoryMgr::Instance().Free(buffer_, uPrevCapacity);
 
             buffer_ = newBuffer;
         }
@@ -459,11 +467,11 @@ void String::Reserve(unsigned newCapacity)
     if (newCapacity == capacity_)
         return;
 
-    auto* newBuffer = new char[newCapacity];
+    char* newBuffer = (char*)CMemoryMgr::Instance().Allocate(newCapacity);
     // Move the existing data to the new buffer, then delete the old buffer
     CopyChars(newBuffer, buffer_, length_ + 1);
     if (capacity_)
-        delete[] buffer_;
+		CMemoryMgr::Instance().Free(buffer_, capacity_);
 
     capacity_ = newCapacity;
     buffer_ = newBuffer;

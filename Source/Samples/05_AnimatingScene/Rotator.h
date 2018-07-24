@@ -31,6 +31,7 @@ using namespace Urho3D;
 class Rotator : public LogicComponent
 {
     URHO3D_OBJECT(Rotator, LogicComponent);
+	MANAGED_OBJECT(Rotator);
 
 public:
     /// Construct.

@@ -33,6 +33,7 @@ class Audio;
 class URHO3D_API SoundSource3D : public SoundSource
 {
     URHO3D_OBJECT(SoundSource3D, SoundSource);
+	MANAGED_OBJECT(SoundSource3D);
 
 public:
     /// Construct.

@@ -31,6 +31,7 @@ namespace Urho3D
 class URHO3D_API StaticModelGroup : public StaticModel
 {
     URHO3D_OBJECT(StaticModelGroup, StaticModel);
+	MANAGED_OBJECT(StaticModelGroup);
 
 public:
     /// Construct.

@@ -122,7 +122,7 @@ void VehicleDemo::CreateScene()
     terrainNode->SetPosition(Vector3::ZERO);
     auto* terrain = terrainNode->CreateComponent<Terrain>();
     terrain->SetPatchSize(64);
-    terrain->SetSpacing(Vector3(2.0f, 0.1f, 2.0f)); // Spacing between vertices and vertical resolution of the height map
+    terrain->SetSpacing(Vector3(2.0f, 0.5f, 2.0f)); // Spacing between vertices and vertical resolution of the height map
     terrain->SetSmoothing(true);
     terrain->SetHeightMap(cache->GetResource<Image>("Textures/HeightMap.png"));
     terrain->SetMaterial(cache->GetResource<Material>("Materials/Terrain.xml"));

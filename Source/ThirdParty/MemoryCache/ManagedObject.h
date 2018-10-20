@@ -37,6 +37,10 @@ namespace EnginePlus
 	public:	\
 		static classType* Retrive()	{ return new(CMemoryMgr::Instance().Allocate(sizeof(classType))) classType(); }	\
 		static void Recycle(classType* pObject)	{ pObject->~classType(); CMemoryMgr::Instance().Free(pObject, sizeof(classType)); }
+		
+#define CACHED_FACTORY	\
+	template<typename T>	\
+	static T* Create() { return new(CMemoryMgr::Instance().Allocate(sizeof(T))) T(); }
 }
 
 #endif

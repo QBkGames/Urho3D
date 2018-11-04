@@ -62,6 +62,8 @@ private:
     void MoveCamera(float timeStep);
     /// Handle the logic update event.
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
+	/// Handle key down event to process key controls specific to  this sample.
+	void HandleKeyDown(StringHash eventType, VariantMap& eventData) override;
 
     /// Reflection camera scene node.
     SharedPtr<Node> reflectionCameraNode_;
@@ -71,4 +73,7 @@ private:
     Plane waterPlane_;
     /// Clipping plane for reflection rendering. Slightly biased downward from the reflection plane to avoid artifacts.
     Plane waterClipPlane_;
+
+	SharedPtr<Node> skyNode_;
+	SharedPtr<Terrain> terrain_;
 };

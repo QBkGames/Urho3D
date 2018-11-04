@@ -75,6 +75,11 @@ protected:
     /// Control logo visibility.
     void SetLogoVisible(bool enable);
 
+	/// Handle key down event to process key controls common to all samples.
+	virtual void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+	/// Handle key up event to process key controls common to all samples.
+	virtual void HandleKeyUp(StringHash eventType, VariantMap& eventData);
+
     /// Logo sprite.
     SharedPtr<Sprite> logoSprite_;
     /// Scene.
@@ -101,10 +106,6 @@ private:
     void HandleMouseModeRequest(StringHash eventType, VariantMap& eventData);
     /// Handle request for mouse mode change on web platform.
     void HandleMouseModeChange(StringHash eventType, VariantMap& eventData);
-    /// Handle key down event to process key controls common to all samples.
-    void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-    /// Handle key up event to process key controls common to all samples.
-    void HandleKeyUp(StringHash eventType, VariantMap& eventData);
     /// Handle scene update event to control camera's pitch and yaw for all samples.
     void HandleSceneUpdate(StringHash eventType, VariantMap& eventData);
     /// Handle touch begin event to initialize touch input on desktop platform.

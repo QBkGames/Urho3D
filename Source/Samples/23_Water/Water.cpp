@@ -63,7 +63,7 @@ void Water::Start()
     CreateScene();
 
     // Create the UI content
-    CreateInstructions();
+//    CreateInstructions();
 
     // Setup the viewport for displaying the scene
     SetupViewport();
@@ -102,30 +102,29 @@ void Water::CreateScene()
     light->SetShadowBias(BiasParameters(0.00025f, 0.5f));
     light->SetShadowCascade(CascadeParameters(10.0f, 50.0f, 200.0f, 0.0f, 0.8f));
     light->SetSpecularIntensity(0.5f);
-    // Apply slightly overbright lighting to match the skybox
-    light->SetColor(Color(1.2f, 1.2f, 1.2f));
+    light->SetColor(Color(1.0f, 1.0f, 1.0f));
 
     // Create skybox. The Skybox component is used like StaticModel, but it will be always located at the camera, giving the
     // illusion of the box planes being far away. Use just the ordinary Box model and a suitable material, whose shader will
     // generate the necessary 3D texture coordinates for cube mapping
-    Node* skyNode = scene_->CreateChild("Sky");
-    skyNode->SetScale(500.0f); // The scale actually does not matter
-    auto* skybox = skyNode->CreateComponent<Skybox>();
+	skyNode_ = scene_->CreateChild("Sky");
+    skyNode_->SetScale(500.0f); // The scale actually does not matter
+    auto* skybox = skyNode_->CreateComponent<Skybox>();
     skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
     skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
 
     // Create heightmap terrain
     Node* terrainNode = scene_->CreateChild("Terrain");
     terrainNode->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-    auto* terrain = terrainNode->CreateComponent<Terrain>();
-    terrain->SetPatchSize(64);
-    terrain->SetSpacing(Vector3(2.0f, 0.5f, 2.0f)); // Spacing between vertices and vertical resolution of the height map
-    terrain->SetSmoothing(true);
-    terrain->SetHeightMap(cache->GetResource<Image>("Textures/HeightMap.png"));
-    terrain->SetMaterial(cache->GetResource<Material>("Materials/Terrain.xml"));
+	terrain_ = terrainNode->CreateComponent<Terrain>();
+    terrain_->SetPatchSize(64);
+    terrain_->SetSpacing(Vector3(3.0f, 1.5f, 3.0f)); // Spacing between vertices and vertical resolution of the height map
+    terrain_->SetSmoothing(true);
+    terrain_->SetHeightMap(cache->GetResource<Image>("Textures/HeightMap.png"));
+    terrain_->SetMaterial(cache->GetResource<Material>("Materials/Terrain.xml"));
     // The terrain consists of large triangles, which fits well for occlusion rendering, as a hill can occlude all
     // terrain patches and other objects behind it
-    terrain->SetOccluder(true);
+    terrain_->SetOccluder(true);
 
     // Create 1000 boxes in the terrain. Always face outward along the terrain normal
     unsigned NUM_OBJECTS = 1000;
@@ -133,11 +132,11 @@ void Water::CreateScene()
     {
         Node* objectNode = scene_->CreateChild("Box");
         Vector3 position(Random(2000.0f) - 1000.0f, 0.0f, Random(2000.0f) - 1000.0f);
-        position.y_ = terrain->GetHeight(position) + 2.25f;
+        position.y_ = terrain_->GetHeight(position) + 1.0f;
         objectNode->SetPosition(position);
         // Create a rotation quaternion from up vector to terrain normal
-        objectNode->SetRotation(Quaternion(Vector3(0.0f, 1.0f, 0.0f), terrain->GetNormal(position)));
-        objectNode->SetScale(5.0f);
+        objectNode->SetRotation(Quaternion(Vector3(0.0f, 1.0f, 0.0f), terrain_->GetNormal(position)));
+        objectNode->SetScale(Vector3(1.0f, 2.0f, 1.0f));
         auto* object = objectNode->CreateComponent<StaticModel>();
         object->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
         object->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
@@ -242,7 +241,7 @@ void Water::MoveCamera(float timeStep)
     auto* input = GetSubsystem<Input>();
 
     // Movement speed as world units per second
-    const float MOVE_SPEED = 20.0f;
+    const float MOVE_SPEED = 100.0f;
     // Mouse sensitivity as degrees per pixel
     const float MOUSE_SENSITIVITY = 0.1f;
 
@@ -256,14 +255,22 @@ void Water::MoveCamera(float timeStep)
     cameraNode_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
 
     // Read WASD keys and move the camera scene node to the corresponding direction if they are pressed
+	float fMoveSpeed = MOVE_SPEED;
+	if (input->GetQualifierDown(Qualifier::QUAL_SHIFT))
+		fMoveSpeed *= 0.2f;
+
     if (input->GetKeyDown(KEY_W))
-        cameraNode_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
+        cameraNode_->Translate(Vector3::FORWARD * fMoveSpeed * timeStep);
     if (input->GetKeyDown(KEY_S))
-        cameraNode_->Translate(Vector3::BACK * MOVE_SPEED * timeStep);
+        cameraNode_->Translate(Vector3::BACK * fMoveSpeed * timeStep);
     if (input->GetKeyDown(KEY_A))
-        cameraNode_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
+        cameraNode_->Translate(Vector3::LEFT * fMoveSpeed * timeStep);
     if (input->GetKeyDown(KEY_D))
-        cameraNode_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
+        cameraNode_->Translate(Vector3::RIGHT * fMoveSpeed * timeStep);
+	if (input->GetKeyDown(KEY_SPACE))
+		cameraNode_->Translate(Vector3::UP * fMoveSpeed * timeStep);
+	if (input->GetKeyDown(KEY_C))
+		cameraNode_->Translate(Vector3::DOWN * fMoveSpeed * timeStep);
 
     // In case resolution has changed, adjust the reflection camera aspect ratio
     auto* graphics = GetSubsystem<Graphics>();
@@ -280,4 +287,33 @@ void Water::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Move the camera, scale movement with time step
     MoveCamera(timeStep);
+
+	Quaternion rot(0.0f, 0.3f * timeStep, 0.0f);
+	skyNode_->Rotate(rot);
+}
+
+void Water::HandleKeyDown(StringHash eventType, VariantMap& eventData)
+{
+	Sample::HandleKeyDown(eventType, eventData);
+
+	using namespace KeyDown;
+	int key = eventData[P_KEY].GetInt();
+
+	// Toggle terrain smoothing
+	if (key == KEY_M)
+	{
+		terrain_->SetSmoothing(!terrain_->GetSmoothing());
+		return;
+	}
+
+	// Reload the terrain texture.
+	if (key == KEY_L)
+	{
+		auto* cache = GetSubsystem<ResourceCache>();
+		auto* heightMap = cache->GetResource<Image>("Textures/HeightMap.png");
+
+		cache->ReloadResource(heightMap);
+		terrain_->SetHeightMap(heightMap);
+		return;
+	}
 }

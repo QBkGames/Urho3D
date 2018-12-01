@@ -28,6 +28,9 @@ PROJECT_DIR=$(cd ${0%/*}/..; pwd)
 BuildEnvironment=-$1; shift
 BuildEnvironment=${BuildEnvironment/-base}
 
+# Workaround Travis-CI intermittent network I/O error
+if [[ $TRAVIS ]]; then while (! docker pull urho3d/dockerized$BuildEnvironment); do sleep 10; done; fi
+
 if [[ $(docker version -f {{.Client.Version}}) =~ ^([0-9]+)\.0*([0-9]+)\. ]] && (( ${BASH_REMATCH[1]} * 100 + ${BASH_REMATCH[2]} >= 1809 )); then
     docker run -it --rm -h fishtank \
         -e HOST_UID=$(id -u) -e HOST_GID=$(id -g) -e PROJECT_DIR=$PROJECT_DIR \
@@ -40,7 +43,7 @@ else
     # Fallback workaround on older Docker CLI version
     docker run -it --rm -h fishtank \
         -e HOST_UID=$(id -u) -e HOST_GID=$(id -g) -e PROJECT_DIR=$PROJECT_DIR \
-        --env-file <(perl -ne 'chomp; print "$_=$ENV{$_}\n" if defined $ENV{$_}' $PROJECT_DIR/script/.env-file) \
+        --env-file <(perl -ne 'chomp; print "$_\n" if defined $ENV{$_}' $PROJECT_DIR/script/.env-file) \
         --mount type=bind,source=$PROJECT_DIR,target=$PROJECT_DIR \
         --mount source=$(id -u).urho3d_home_dir,target=/home/urho3d \
         --name dockerized$BuildEnvironment \

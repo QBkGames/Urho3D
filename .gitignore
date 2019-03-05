@@ -1,6 +1,5 @@
 # Output directories
 /bin/*
-!/bin/**/
 !/bin/*.bat
 !/bin/*.sh
 /bin/*.app/
@@ -21,9 +20,7 @@ build/
 /Source/ThirdParty/Assimp/revision.h
 /Source/ThirdParty/Assimp/contrib/zlib/zconf.h
 /Source/ThirdParty/Assimp/include/assimp/config.h
-/Source/ThirdParty/LuaJIT/src/host/buildvm
-/Source/ThirdParty/LuaJIT/src/host/buildvm_arch.h
-/Source/ThirdParty/LuaJIT/src/host/minilua
+/Source/ThirdParty/LuaJIT/src/host/*
 /Source/Urho3D/Precompiled.cpp
 /Source/Urho3D/Urho3D.h
 /Source/Urho3D/Urho3D.pc
@@ -82,6 +79,7 @@ build/
 *.tlog
 Debug/
 Release/
+RelWithDebInfo/
 Win32/
 
 # Android project settings

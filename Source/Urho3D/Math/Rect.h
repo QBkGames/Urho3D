@@ -228,7 +228,15 @@ public:
             return INSIDE;
     }
 
-    /// Return float data.
+	/// Test if another rect is inside/intersects or outside.
+	bool IsInsideFast(const Rect& rect) const
+	{
+		if (rect.max_.x_ < min_.x_ || rect.min_.x_ > max_.x_ || rect.max_.y_ < min_.y_ || rect.min_.y_ > max_.y_)
+			return false;
+		return true;
+	}
+
+	/// Return float data.
     const void* Data() const { return &min_.x_; }
 
     /// Return as a vector.

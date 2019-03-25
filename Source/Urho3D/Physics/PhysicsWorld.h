@@ -194,7 +194,9 @@ public:
     /// Perform a physics world swept sphere test and return the closest hit.
     void SphereCast
         (PhysicsRaycastResult& result, const Ray& ray, float radius, float maxDistance, unsigned collisionMask = M_MAX_UNSIGNED);
-    /// Perform a physics world swept convex test using a user-supplied collision shape and return the first hit.
+	/// Perform a physics world swept sphere test and determines if it hits anything.
+	bool IsSphereCastOverlap(const Ray& ray, float radius, float maxDistance, unsigned collisionMask = M_MAX_UNSIGNED);
+	/// Perform a physics world swept convex test using a user-supplied collision shape and return the first hit.
     void ConvexCast(PhysicsRaycastResult& result, CollisionShape* shape, const Vector3& startPos, const Quaternion& startRot,
         const Vector3& endPos, const Quaternion& endRot, unsigned collisionMask = M_MAX_UNSIGNED);
     /// Perform a physics world swept convex test using a user-supplied Bullet collision shape and return the first hit.

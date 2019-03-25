@@ -517,6 +517,39 @@ void PhysicsWorld::SphereCast(PhysicsRaycastResult& result, const Ray& ray, floa
     }
 }
 
+/// Perform a physics world swept sphere test and determines if it hits anything.
+bool PhysicsWorld::IsSphereCastOverlap(const Ray& ray, float radius, float maxDistance, unsigned collisionMask)
+{
+	struct	AnyHitConvexResultCallback : public btCollisionWorld::ConvexResultCallback
+	{
+		btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace) override
+		{
+			//caller already does the filter on the m_closestHitFraction
+			btAssert(convexResult.m_hitFraction <= m_closestHitFraction);
+			m_closestHitFraction = convexResult.m_hitFraction;
+
+			return convexResult.m_hitFraction;
+		}
+	};
+
+	URHO3D_PROFILE(PhysicsSphereCast);
+
+	if (maxDistance >= M_INFINITY)
+		URHO3D_LOGWARNING("Infinite maxDistance in physics sphere cast is not supported");
+
+	btSphereShape shape(radius);
+	Vector3 endPos = ray.origin_ + maxDistance * ray.direction_;
+
+	AnyHitConvexResultCallback convexCallback;
+	convexCallback.m_collisionFilterGroup = (short)0xffff;
+	convexCallback.m_collisionFilterMask = (short)collisionMask;
+
+	world_->convexSweepTest(&shape, btTransform(btQuaternion::getIdentity(), ToBtVector3(ray.origin_)),
+		btTransform(btQuaternion::getIdentity(), ToBtVector3(endPos)), convexCallback);
+
+	return convexCallback.hasHit();
+}
+
 void PhysicsWorld::ConvexCast(PhysicsRaycastResult& result, CollisionShape* shape, const Vector3& startPos,
     const Quaternion& startRot, const Vector3& endPos, const Quaternion& endRot, unsigned collisionMask)
 {

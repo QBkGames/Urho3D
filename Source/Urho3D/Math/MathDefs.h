@@ -235,6 +235,9 @@ inline int Random(int min, int max) { auto range = (float)(max - min); return (i
 /// Return a random normal distributed number with the given mean value and variance.
 inline float RandomNormal(float meanValue, float variance) { return RandStandardNormal() * sqrtf(variance) + meanValue; }
 
+/// Return a random angle in range 0 to 360.
+inline float RandomAngle() { return Random(360.0f); }
+
 /// Convert float to half float. From https://gist.github.com/martinkallman/5049614
 inline unsigned short FloatToHalf(float value)
 {

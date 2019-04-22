@@ -54,7 +54,7 @@ const float CAMERA_DISTANCE = 10.0f;
 URHO3D_DEFINE_APPLICATION_MAIN(VehicleDemo)
 
 VehicleDemo::VehicleDemo(Context* context) :
-    Sample(context)
+    Sample(context), drawDebug_(false)
 {
     // Register factory and attributes for the Vehicle component so it can be created via CreateComponent, and loaded / saved
     Vehicle::RegisterObject(context);
@@ -89,7 +89,9 @@ void VehicleDemo::CreateScene()
 
     // Create scene subsystem components
     scene_->CreateComponent<Octree>();
-    scene_->CreateComponent<PhysicsWorld>();
+	PhysicsWorld* pPhysics = scene_->CreateComponent<PhysicsWorld>();
+	pPhysics->SetMaxSubSteps(1);
+	pPhysics->SetInterpolation(false);
 
     // Create camera and define viewport. We will be doing load / save, so it's convenient to create the camera outside the scene,
     // so that it won't be destroyed and recreated, and we don't have to redefine the viewport on load
@@ -131,12 +133,12 @@ void VehicleDemo::CreateScene()
     terrain->SetOccluder(true);
 
     auto* body = terrainNode->CreateComponent<RigidBody>();
-    body->SetCollisionLayer(2); // Use layer bitmask 2 for static geometry
+    body->SetCollisionLayer(4); // Use layer bitmask 4 for terrain
     auto* shape = terrainNode->CreateComponent<CollisionShape>();
     shape->SetTerrain();
 
     // Create 1000 mushrooms in the terrain. Always face outward along the terrain normal
-    const unsigned NUM_MUSHROOMS = 1000;
+    const unsigned NUM_MUSHROOMS = 20000;
     for (unsigned i = 0; i < NUM_MUSHROOMS; ++i)
     {
         Node* objectNode = scene_->CreateChild("Mushroom");
@@ -156,6 +158,46 @@ void VehicleDemo::CreateScene()
         auto* shape = objectNode->CreateComponent<CollisionShape>();
         shape->SetTriangleMesh(object->GetModel(), 0);
     }
+
+/*
+	auto pTestNode = scene_->CreateChild();
+
+	auto* pModelComponent = pTestNode->CreateComponent<StaticModel>();
+	auto* pModel = cache->GetResource<Model>("Models/Box.mdl");
+	pModelComponent->SetModel(pModel);
+
+	Vector3 v3Position(0, 0, 10);
+	v3Position.y_ = terrain->GetHeight(v3Position) + 0.5f;
+	pTestNode->SetPosition(v3Position);
+
+//	pTestNode->SetRotation(Quaternion(Vector3(0.0f, 1.0f, 0.0f), terrain->GetNormal(v3Position)));
+
+	body = pTestNode->CreateComponent<RigidBody>();
+	body->SetCollisionLayer(2);
+	shape = pTestNode->CreateComponent<CollisionShape>();
+	shape->SetBox(Vector3::ONE);
+
+	// Test overlapping
+	Vector3 v3RayOrigin = v3Position;
+	v3RayOrigin.y_ = terrain->GetHeight(v3Position);
+	Ray castRay(v3RayOrigin, Vector3::UP);
+	bool bIsOverlapping = pPhysics->IsSphereCastOverlap(castRay, 1.0f, 10.0f, M_MAX_UNSIGNED - 4);
+
+	v3RayOrigin = v3Position + Vector3(5, 0, 0);
+	v3RayOrigin.y_ = terrain->GetHeight(v3Position);
+	castRay.origin_ = v3RayOrigin;
+	bool bIsNotOverlapping = pPhysics->IsSphereCastOverlap(castRay, 1.0f, 10.0f, M_MAX_UNSIGNED - 4);
+
+	v3RayOrigin = v3Position - Vector3(1.55f, 0, 0);
+	v3RayOrigin.y_ = terrain->GetHeight(v3Position);
+	castRay.origin_ = v3RayOrigin;
+	bool bIsStillNotOverlapping = pPhysics->IsSphereCastOverlap(castRay, 1.0f, 10.0f, M_MAX_UNSIGNED - 4);
+
+	v3RayOrigin = v3Position + Vector3(0.25f, 0, 0);
+	v3RayOrigin.y_ = terrain->GetHeight(v3Position);
+	castRay.origin_ = v3RayOrigin;
+	bool bIsParitialOverlapping = pPhysics->IsSphereCastOverlap(castRay, 1.0f, 10.0f, M_MAX_UNSIGNED - 4);
+*/
 }
 
 void VehicleDemo::CreateVehicle()
@@ -198,7 +240,11 @@ void VehicleDemo::SubscribeToEvents()
     // Subscribe to PostUpdate event for updating the camera position after physics simulation
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(VehicleDemo, HandlePostUpdate));
 
-    // Unsubscribe the SceneUpdate event from base class as the camera node is being controlled in HandlePostUpdate() in this sample
+	// Subscribe HandlePostRenderUpdate() function for processing the post-render update event, during which we request
+	// debug geometry
+	SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(VehicleDemo, HandlePostRenderUpdate));
+	
+	// Unsubscribe the SceneUpdate event from base class as the camera node is being controlled in HandlePostUpdate() in this sample
     UnsubscribeFromEvent(E_SCENEUPDATE);
 }
 
@@ -267,6 +313,10 @@ void VehicleDemo::HandleUpdate(StringHash eventType, VariantMap& eventData)
         else
             vehicle_->controls_.Set(CTRL_FORWARD | CTRL_BACK | CTRL_LEFT | CTRL_RIGHT, false);
     }
+
+	// Toggle physics debug geometry with space
+	if (input->GetKeyPress(KEY_SPACE))
+		drawDebug_ = !drawDebug_;
 }
 
 void VehicleDemo::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
@@ -295,4 +345,10 @@ void VehicleDemo::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
 
     cameraNode_->SetPosition(cameraTargetPos);
     cameraNode_->SetRotation(dir);
+}
+
+void VehicleDemo::HandlePostRenderUpdate(StringHash eventType, VariantMap & eventData)
+{
+	if (drawDebug_)
+		scene_->GetComponent<PhysicsWorld>()->DrawDebugGeometry(true);
 }

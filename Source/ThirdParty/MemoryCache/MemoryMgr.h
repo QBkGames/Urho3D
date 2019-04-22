@@ -74,11 +74,14 @@ namespace EnginePlus
 		unsigned _uLargeBlocksMin;
 		unsigned _uLargeBlocksMax;
 #endif
+		// INITIALISATION =====================================================
+
 		// Default constructor private to enforce the singleton pattern.
 		CMemoryMgr();
 
 	public:
-		// INITIALISATION =====================================================
+		CMemoryMgr(const CMemoryMgr&) = delete;
+		CMemoryMgr& operator=(const CMemoryMgr&) = delete;
 
 		// PROPERTIES =========================================================
 

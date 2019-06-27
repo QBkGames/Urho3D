@@ -61,8 +61,6 @@ struct URHO3D_API NodeImpl
     Connection* owner_;
     /// Name.
     String name_;
-    /// Tag strings.
-    StringVector tags_;
     /// Name hash.
     StringHash nameHash_;
     /// Attribute buffer for network updates.
@@ -82,7 +80,7 @@ public:
     /// Construct.
     explicit Node(Context* context);
     /// Destruct. Any child nodes are detached.
-    ~Node() override;
+    virtual ~Node() override;
     /// Register object factory.
     static void RegisterObject(Context* context);
 
@@ -117,19 +115,6 @@ public:
     bool SaveJSON(Serializer& dest, const String& indentation = "\t") const;
     /// Set name of the scene node. Names are not required to be unique.
     void SetName(const String& name);
-
-    /// Set tags. Old tags are overwritten.
-    void SetTags(const StringVector& tags);
-    /// Add a tag.
-    void AddTag(const String& tag);
-    /// Add tags with the specified separator, by default ;
-    void AddTags(const String& tags, char separator = ';');
-    /// Add tags.
-    void AddTags(const StringVector& tags);
-    /// Remove tag. Return true if existed.
-    bool RemoveTag(const String& tag);
-    /// Remove all tags.
-    void RemoveAllTags();
 
     /// Set position in parent space. If the scene node is on the root level (is child of the scene itself), this is same as world space.
     void SetPosition(const Vector3& position);
@@ -323,8 +308,6 @@ public:
     void Remove();
     /// Assign to a new parent scene node. Retains the world transform.
     void SetParent(Node* parent);
-    /// Set a user variable.
-    void SetVar(StringHash key, const Variant& value);
     /// Add listener component that is notified of node being dirtied. Can either be in the same node or another.
     void AddListener(Component* component);
     /// Remove listener component.
@@ -348,12 +331,6 @@ public:
 
     /// Return name hash.
     StringHash GetNameHash() const { return impl_->nameHash_; }
-
-    /// Return all tags.
-    const StringVector& GetTags() const { return impl_->tags_; }
-
-    /// Return whether has a specific tag.
-    bool HasTag(const String& tag) const;
 
     /// Return parent scene node.
     Node* GetParent() const { return parent_; }
@@ -519,10 +496,6 @@ public:
     void GetChildrenWithComponent(PODVector<Node*>& dest, StringHash type, bool recursive = false) const;
     /// Return child scene nodes with a specific component.
     PODVector<Node*> GetChildrenWithComponent(StringHash type, bool recursive = false) const;
-    /// Return child scene nodes with a specific tag.
-    void GetChildrenWithTag(PODVector<Node*>& dest, const String& tag, bool recursive = false) const;
-    /// Return child scene nodes with a specific tag.
-    PODVector<Node*> GetChildrenWithTag(const String& tag, bool recursive = false) const;
 
     /// Return child scene node by index.
     Node* GetChild(unsigned index) const;
@@ -552,12 +525,6 @@ public:
     bool HasComponent(StringHash type) const;
     /// Return listener components.
     const Vector<WeakPtr<Component> > GetListeners() const { return listeners_; }
-
-    /// Return a user variable.
-    const Variant& GetVar(StringHash key) const;
-
-    /// Return all user variables.
-    const VariantMap& GetVars() const { return vars_; }
 
     /// Return first component derived from class.
     template <class T> T* GetDerivedComponent(bool recursive = false) const;
@@ -654,8 +621,6 @@ private:
     void GetChildrenRecursive(PODVector<Node*>& dest) const;
     /// Return child nodes with a specific component recursively.
     void GetChildrenWithComponentRecursive(PODVector<Node*>& dest, StringHash type) const;
-    /// Return child nodes with a specific tag recursively.
-    void GetChildrenWithTagRecursive(PODVector<Node*>& dest, const String& tag) const;
     /// Return specific components recursively.
     void GetComponentsRecursive(PODVector<Component*>& dest, StringHash type) const;
     /// Clone node recursively.
@@ -701,10 +666,6 @@ private:
     Vector<WeakPtr<Component> > listeners_;
     /// Pointer to implementation.
     UniquePtr<NodeImpl> impl_;
-
-protected:
-    /// User variables.
-    VariantMap vars_;
 };
 
 template <class T> T* Node::CreateComponent(CreateMode mode, unsigned id)

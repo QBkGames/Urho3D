@@ -80,11 +80,9 @@ void Node::RegisterObject(Context* context)
 
     URHO3D_ACCESSOR_ATTRIBUTE("Is Enabled", IsEnabled, SetEnabled, bool, true, AM_DEFAULT);
     URHO3D_ACCESSOR_ATTRIBUTE("Name", GetName, SetName, String, String::EMPTY, AM_DEFAULT);
-    URHO3D_ACCESSOR_ATTRIBUTE("Tags", GetTags, SetTags, StringVector, Variant::emptyStringVector, AM_DEFAULT);
     URHO3D_ACCESSOR_ATTRIBUTE("Position", GetPosition, SetPosition, Vector3, Vector3::ZERO, AM_FILE);
     URHO3D_ACCESSOR_ATTRIBUTE("Rotation", GetRotation, SetRotation, Quaternion, Quaternion::IDENTITY, AM_FILE);
     URHO3D_ACCESSOR_ATTRIBUTE("Scale", GetScale, SetScale, Vector3, Vector3::ONE, AM_DEFAULT);
-    URHO3D_ATTRIBUTE("Variables", VariantMap, vars_, Variant::emptyVariantMap, AM_FILE); // Network replication of vars uses custom data
     URHO3D_ACCESSOR_ATTRIBUTE("Network Position", GetNetPositionAttr, SetNetPositionAttr, Vector3, Vector3::ZERO,
         AM_NET | AM_LATESTDATA | AM_NOEDIT);
     URHO3D_ACCESSOR_ATTRIBUTE("Network Rotation", GetNetRotationAttr, SetNetRotationAttr, PODVector<unsigned char>, Variant::emptyBuffer,
@@ -340,101 +338,6 @@ void Node::SetName(const String& name)
             scene_->SendEvent(E_NODENAMECHANGED, eventData);
         }
     }
-}
-
-void Node::SetTags(const StringVector& tags)
-{
-    RemoveAllTags();
-    AddTags(tags);
-    // MarkNetworkUpdate() already called in RemoveAllTags() / AddTags()
-}
-
-void Node::AddTag(const String& tag)
-{
-    // Check if tag empty or already added
-    if (tag.Empty() || HasTag(tag))
-        return;
-
-    // Add tag
-    impl_->tags_.Push(tag);
-
-    // Cache
-    scene_->NodeTagAdded(this, tag);
-
-    // Send event
-    using namespace NodeTagAdded;
-    VariantMap& eventData = GetEventDataMap();
-    eventData[P_SCENE] = scene_;
-    eventData[P_NODE] = this;
-    eventData[P_TAG] = tag;
-    scene_->SendEvent(E_NODETAGADDED, eventData);
-
-    // Sync
-    MarkNetworkUpdate();
-}
-
-void Node::AddTags(const String& tags, char separator)
-{
-    StringVector tagVector = tags.Split(separator);
-    AddTags(tagVector);
-}
-
-void Node::AddTags(const StringVector& tags)
-{
-    // This is OK, as MarkNetworkUpdate() early-outs when called multiple times
-    for (unsigned i = 0; i < tags.Size(); ++i)
-        AddTag(tags[i]);
-}
-
-bool Node::RemoveTag(const String& tag)
-{
-    bool removed = impl_->tags_.Remove(tag);
-
-    // Nothing to do
-    if (!removed)
-        return false;
-
-    // Scene cache update
-    if (scene_)
-    {
-        scene_->NodeTagRemoved(this, tag);
-        // Send event
-        using namespace NodeTagRemoved;
-        VariantMap& eventData = GetEventDataMap();
-        eventData[P_SCENE] = scene_;
-        eventData[P_NODE] = this;
-        eventData[P_TAG] = tag;
-        scene_->SendEvent(E_NODETAGREMOVED, eventData);
-    }
-
-    // Sync
-    MarkNetworkUpdate();
-    return true;
-}
-
-void Node::RemoveAllTags()
-{
-    // Clear old scene cache
-    if (scene_)
-    {
-        for (unsigned i = 0; i < impl_->tags_.Size(); ++i)
-        {
-            scene_->NodeTagRemoved(this, impl_->tags_[i]);
-
-            // Send event
-            using namespace NodeTagRemoved;
-            VariantMap& eventData = GetEventDataMap();
-            eventData[P_SCENE] = scene_;
-            eventData[P_NODE] = this;
-            eventData[P_TAG] = impl_->tags_[i];
-            scene_->SendEvent(E_NODETAGREMOVED, eventData);
-        }
-    }
-
-    impl_->tags_.Clear();
-
-    // Sync
-    MarkNetworkUpdate();
 }
 
 void Node::SetPosition(const Vector3& position)
@@ -1136,12 +1039,6 @@ void Node::SetParent(Node* parent)
     }
 }
 
-void Node::SetVar(StringHash key, const Variant& value)
-{
-    vars_[key] = value;
-    MarkNetworkUpdate();
-}
-
 void Node::AddListener(Component* component)
 {
     if (!component)
@@ -1269,29 +1166,6 @@ PODVector<Node*> Node::GetChildrenWithComponent(StringHash type, bool recursive)
     return dest;
 }
 
-void Node::GetChildrenWithTag(PODVector<Node*>& dest, const String& tag, bool recursive /*= true*/) const
-{
-    dest.Clear();
-
-    if (!recursive)
-    {
-        for (Vector<SharedPtr<Node> >::ConstIterator i = children_.Begin(); i != children_.End(); ++i)
-        {
-            if ((*i)->HasTag(tag))
-                dest.Push(*i);
-        }
-    }
-    else
-        GetChildrenWithTagRecursive(dest, tag);
-}
-
-PODVector<Node*> Node::GetChildrenWithTag(const String& tag, bool recursive) const
-{
-    PODVector<Node*> dest;
-    GetChildrenWithTag(dest, tag, recursive);
-    return dest;
-}
-
 Node* Node::GetChild(unsigned index) const
 {
     return index < children_.Size() ? children_[index].Get() : nullptr;
@@ -1368,11 +1242,6 @@ bool Node::IsReplicated() const
     return Scene::IsReplicatedID(id_);
 }
 
-bool Node::HasTag(const String& tag) const
-{
-    return impl_->tags_.Contains(tag);
-}
-
 bool Node::IsChildOf(Node* node) const
 {
     Node* parent = parent_;
@@ -1383,12 +1252,6 @@ bool Node::IsChildOf(Node* node) const
         parent = parent->parent_;
     }
     return false;
-}
-
-const Variant& Node::GetVar(StringHash key) const
-{
-    VariantMap::ConstIterator i = vars_.Find(key);
-    return i != vars_.End() ? i->second_ : Variant::EMPTY;
 }
 
 Component* Node::GetComponent(StringHash type, bool recursive) const
@@ -1736,30 +1599,6 @@ void Node::PrepareNetworkUpdate()
         }
     }
 
-    // Finally check for user var changes
-    for (VariantMap::ConstIterator i = vars_.Begin(); i != vars_.End(); ++i)
-    {
-        VariantMap::ConstIterator j = networkState_->previousVars_.Find(i->first_);
-        if (j == networkState_->previousVars_.End() || j->second_ != i->second_)
-        {
-            networkState_->previousVars_[i->first_] = i->second_;
-
-            // Mark the var dirty in all replication states that are tracking this node
-            for (PODVector<ReplicationState*>::Iterator j = networkState_->replicationStates_.Begin();
-                 j != networkState_->replicationStates_.End(); ++j)
-            {
-                auto* nodeState = static_cast<NodeReplicationState*>(*j);
-                nodeState->dirtyVars_.Insert(i->first_);
-
-                if (!nodeState->markedDirty_)
-                {
-                    nodeState->markedDirty_ = true;
-                    nodeState->sceneState_->dirtyNodes_.Insert(id_);
-                }
-            }
-        }
-    }
-
     networkUpdate_ = false;
 }
 
@@ -2029,7 +1868,7 @@ void Node::SetEnabled(bool enable, bool recursive, bool storeSelf)
         for (Vector<SharedPtr<Component> >::Iterator i = components_.Begin(); i != components_.End(); ++i)
         {
             (*i)->OnSetEnabled();
-
+/*
             // Send change event for the component
             if (scene_)
             {
@@ -2042,6 +1881,7 @@ void Node::SetEnabled(bool enable, bool recursive, bool storeSelf)
 
                 scene_->SendEvent(E_COMPONENTENABLEDCHANGED, eventData);
             }
+*/
         }
     }
 
@@ -2157,18 +1997,6 @@ void Node::GetComponentsRecursive(PODVector<Component*>& dest, StringHash type) 
     }
     for (Vector<SharedPtr<Node> >::ConstIterator i = children_.Begin(); i != children_.End(); ++i)
         (*i)->GetComponentsRecursive(dest, type);
-}
-
-void Node::GetChildrenWithTagRecursive(PODVector<Node*>& dest, const String& tag) const
-{
-    for (Vector<SharedPtr<Node> >::ConstIterator i = children_.Begin(); i != children_.End(); ++i)
-    {
-        Node* node = *i;
-        if (node->HasTag(tag))
-            dest.Push(node);
-        if (!node->children_.Empty())
-            node->GetChildrenWithTagRecursive(dest, tag);
-    }
 }
 
 Node* Node::CloneRecursive(Node* parent, SceneResolver& resolver, CreateMode mode)

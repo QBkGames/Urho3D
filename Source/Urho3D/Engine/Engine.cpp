@@ -716,7 +716,9 @@ void Engine::Render()
 
     GetSubsystem<Renderer>()->Render();
     GetSubsystem<UI>()->Render();
-    graphics->EndFrame();
+	
+	URHO3D_PROFILE(ApplyFrameLimit);
+	graphics->EndFrame();
 }
 
 void Engine::ApplyFrameLimit()
@@ -741,7 +743,7 @@ void Engine::ApplyFrameLimit()
     if (maxFps < 60)
 #endif
     {
-        URHO3D_PROFILE(ApplyFrameLimit);
+//        URHO3D_PROFILE(ApplyFrameLimit);
 
         long long targetMax = 1000000LL / maxFps;
 

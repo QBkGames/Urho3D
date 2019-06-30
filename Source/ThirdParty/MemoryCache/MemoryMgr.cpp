@@ -1,4 +1,3 @@
-//
 // Copyright (c) 2018 QB'k Games.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +17,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
 
 #include "MemoryMgr.h"
 #include <malloc.h>
@@ -70,15 +68,11 @@ namespace EnginePlus
 		}
 
 		unsigned uCacheIndex = CalcCacheIndex(uBlockSize);
-#ifdef _MULTITHREADED_
-		std::unique_lock<std::mutex> hndLock(_hndMutex);
-#endif
-		SMemBlock* pBlock = _blockCaches[uCacheIndex].pCacheBlock;
 
+		SMemBlock* pBlock = _blockCaches[uCacheIndex].Allocate();
 		if (!pBlock)
-			return AllocateFromPage(_blockCaches[uCacheIndex].uBlockSize);
-
-		_blockCaches[uCacheIndex].pCacheBlock = pBlock->pNext;
+			return AllocateFromPage(_blockCaches[uCacheIndex].BlockSize());
+		
 		return pBlock;
 	}
 
@@ -96,11 +90,7 @@ namespace EnginePlus
 		unsigned uCacheIndex = CalcCacheIndex(uBlockSize);
 		SMemBlock* pBlock = (SMemBlock*)pMem;
 
-#ifdef _MULTITHREADED_
-		std::unique_lock<std::mutex> hndLock(_hndMutex);
-#endif
-		pBlock->pNext = _blockCaches[uCacheIndex].pCacheBlock;
-		_blockCaches[uCacheIndex].pCacheBlock = pBlock;
+		_blockCaches[uCacheIndex].Free(pBlock);
 	}
 
 #ifdef _STATISTICS_
@@ -143,6 +133,7 @@ namespace EnginePlus
 	// ------------------------------------------------------------------------
 	CMemoryMgr::~CMemoryMgr()
 	{
+		// TODO: Delete allocated pages, if neccessary
 	}
 
 	// ----------------------------------------------------------------------------
@@ -157,8 +148,7 @@ namespace EnginePlus
 
 		for (uLoopRound = 0; uLoopRound < 8; uLoopRound++)
 		{
-			_blockCaches[uCacheIndex].pCacheBlock = nullptr;
-			_blockCaches[uCacheIndex].uBlockSize = uBlockSize;
+			_blockCaches[uCacheIndex].Initialise(uBlockSize);
 			uBlockSize += 8;
 
 			_cacheIndexes[uIndex++] = uCacheIndex;
@@ -168,8 +158,7 @@ namespace EnginePlus
 
 		for (uLoopRound = 0; uLoopRound < 4; uLoopRound++)
 		{
-			_blockCaches[uCacheIndex].pCacheBlock = nullptr;
-			_blockCaches[uCacheIndex].uBlockSize = uBlockSize;
+			_blockCaches[uCacheIndex].Initialise(uBlockSize);
 			uBlockSize += 16;
 
 			for (unsigned uSizeIndex = 0; uSizeIndex < 2; uSizeIndex++)
@@ -180,8 +169,7 @@ namespace EnginePlus
 
 		for (uLoopRound = 0; uLoopRound < 4; uLoopRound++)
 		{
-			_blockCaches[uCacheIndex].pCacheBlock = nullptr;
-			_blockCaches[uCacheIndex].uBlockSize = uBlockSize;
+			_blockCaches[uCacheIndex].Initialise(uBlockSize);
 			uBlockSize += 32;
 
 			for (unsigned uSizeIndex = 0; uSizeIndex < 4; uSizeIndex++)
@@ -192,8 +180,7 @@ namespace EnginePlus
 
 		for (uLoopRound = 0; uLoopRound < 4; uLoopRound++)
 		{
-			_blockCaches[uCacheIndex].pCacheBlock = nullptr;
-			_blockCaches[uCacheIndex].uBlockSize = uBlockSize;
+			_blockCaches[uCacheIndex].Initialise(uBlockSize);
 			uBlockSize += 64;
 
 			for (unsigned uSizeIndex = 0; uSizeIndex < 8; uSizeIndex++)
@@ -204,8 +191,7 @@ namespace EnginePlus
 
 		for (uLoopRound = 0; uLoopRound < 4; uLoopRound++)
 		{
-			_blockCaches[uCacheIndex].pCacheBlock = nullptr;
-			_blockCaches[uCacheIndex].uBlockSize = uBlockSize;
+			_blockCaches[uCacheIndex].Initialise(uBlockSize);
 			uBlockSize += 128;
 
 			for (unsigned uSizeIndex = 0; uSizeIndex < 16; uSizeIndex++)
@@ -227,6 +213,9 @@ namespace EnginePlus
 		if (pMem = _pPageB->Allocate(uBlockSize))
 			return pMem;
 
+#ifdef _MULTITHREADED_
+		std::lock_guard<std::mutex> hndLock(_hndMutex);
+#endif
 		// Archive the page with lowest free space
 		CMemoryPage*& pPageToArchive =
 			(_pPageA->FreeSize() >= _pPageB->FreeSize()) ? _pPageB : _pPageA;

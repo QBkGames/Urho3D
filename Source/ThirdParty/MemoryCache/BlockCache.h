@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright (c) 2018 QB'k Games.
+// Copyright (c) 2019 QB'k Games.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,76 +20,76 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __ANDROID__
-#include <cstddef>
-#endif
+#ifdef _MULTITHREADED_
 #include <atomic>
-
-#define MEMORY_PAGE_SIZE	(1024 * 16)
+#endif
 
 namespace EnginePlus
 {
+	// A block of data which, when free, is part of a single linked list.
+	struct SMemBlock
+	{
+		SMemBlock* pNext;
+	};
+
 	// ------------------------------------------------------------------------
-	// A page of memory allocated by the memory manager.
+	// Handles efficient allocation and recycling of data blocks of a single size
 	// ------------------------------------------------------------------------
-	class CMemoryPage
+	class CBlockCache
 	{
 		// FIELDS =============================================================
-		unsigned _uFreeSize;
-		char* _pFreeData;
 
-		char _data[MEMORY_PAGE_SIZE];
+		SMemBlock* _pCacheBlock = nullptr;
+		size_t _uBlockSize;
 
 #ifdef _MULTITHREADED_
 		std::atomic_flag _lockFlag = ATOMIC_FLAG_INIT;
 #endif
-
 	public:
 		// INITIALISATION =====================================================
+		
+		// Default constructor
+		CBlockCache() = default;
 
-		// Default constructor.
-		CMemoryPage()
-			: _uFreeSize(MEMORY_PAGE_SIZE), _pFreeData(_data), pNext(nullptr)	{}
+		// Initialise the block data size.
+		void Initialise(size_t uDataSize) { _uBlockSize = uDataSize; }
 
 		// PROPERTIES =========================================================
 
-		// Gets the size of available free memory.
-		unsigned FreeSize() const				{ return _uFreeSize; }
-
-		// Get or set the next page pointer.
-		CMemoryPage* pNext;
+		// Gets the block size of this cache.
+		size_t BlockSize() const { return _uBlockSize; }
 
 		// MUTATORS ===========================================================
 
-		// Allocates a block of the specified size from the data.
-		// Returns the block pointer or null if not enough free data is available.
-		void* Allocate(size_t uBlockSize)
+		// Returns a block from the cache or null if the cache is empty.
+		SMemBlock* Allocate()
+		{
+			SMemBlock* pBlock = nullptr;
+#ifdef _MULTITHREADED_
+			while (_lockFlag.test_and_set()) {}
+#endif
+			if (_pCacheBlock)
+			{
+				pBlock = _pCacheBlock;
+				_pCacheBlock = _pCacheBlock->pNext;
+			}
+
+#ifdef _MULTITHREADED_
+			_lockFlag.clear();
+#endif
+			return pBlock;
+		}
+
+		// Returns a data block to the cache for recycling.
+		void Free(SMemBlock* pBlock)
 		{
 #ifdef _MULTITHREADED_
-			// Use a different algorithm for thread safe, which is a bit less efficient but correct
-			void* pData = nullptr;
-
 			while (_lockFlag.test_and_set()) {}
-			if (uBlockSize <= _uFreeSize)
-			{
-				pData = _pFreeData;
-
-				_pFreeData += uBlockSize;
-				_uFreeSize -= uBlockSize;
-			}
+#endif
+			pBlock->pNext = _pCacheBlock;
+			_pCacheBlock = pBlock;
+#ifdef _MULTITHREADED_
 			_lockFlag.clear();
-
-			return pData;
-#else
-			if (uBlockSize > _uFreeSize)
-				return nullptr;
-
-			void* pData = _pFreeData;
-
-			_pFreeData += uBlockSize;
-			_uFreeSize -= uBlockSize;
-
-			return pData;
 #endif
 		}
 
@@ -97,10 +97,8 @@ namespace EnginePlus
 
 		// CLEAN UP ===========================================================
 
-		// Destructor.
-		~CMemoryPage() = default;
-
 	private:
 		// IMPLEMENTATION =====================================================
+
 	};
 }

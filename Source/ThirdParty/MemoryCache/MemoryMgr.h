@@ -1,9 +1,6 @@
 #pragma once
-#ifndef _MEMORYMGR_H_
-#define _MEMORYMGR_H_
 
-//
-// Copyright (c) 2018 QB'k Games.
+// Copyright (c) 2019 QB'k Games.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +19,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
 
-
+#include "BlockCache.h"
 #include "MemoryPage.h"
 #ifdef _MULTITHREADED_
 #include <mutex>
@@ -42,21 +38,9 @@ namespace EnginePlus
 	// ------------------------------------------------------------------------
 	class CMemoryMgr
 	{
-		// A block of data which, when free, is part of a single linked list.
-		struct SMemBlock
-		{
-			SMemBlock* pNext;
-		};
-
-		struct SBlockCache
-		{
-			SMemBlock* pCacheBlock;
-			size_t uBlockSize;
-		};
-
 		// FIELDS =============================================================
 
-		SBlockCache _blockCaches[MEM_CACHE_COUNT];
+		CBlockCache _blockCaches[MEM_CACHE_COUNT];
 		unsigned _cacheIndexes[MEM_ALLOCATOR_INDEXES];
 
 		CMemoryPage* _pPageA;
@@ -139,5 +123,3 @@ namespace EnginePlus
 		void* AllocateFromPage(size_t uBlockSize);
 	};
 }
-
-#endif

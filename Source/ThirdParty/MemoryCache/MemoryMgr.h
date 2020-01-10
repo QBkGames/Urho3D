@@ -111,7 +111,7 @@ namespace EnginePlus
 		// Calculates the cache index from the given block size.
 		unsigned CalcCacheIndex(size_t uBlockSize) const
 		{
-			unsigned uBlockSizeFactor = uBlockSize / MIN_BLOCK_SIZE_STEP;
+			size_t uBlockSizeFactor = uBlockSize / MIN_BLOCK_SIZE_STEP;
 			if (!(uBlockSize % MIN_BLOCK_SIZE_STEP))
 				uBlockSizeFactor--;
 

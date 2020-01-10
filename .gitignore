@@ -126,3 +126,4 @@ configure*
 *.bak
 Thumbs.db
 .directory
+*.obj

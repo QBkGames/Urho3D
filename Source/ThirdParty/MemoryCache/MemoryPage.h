@@ -35,7 +35,7 @@ namespace EnginePlus
 	class CMemoryPage
 	{
 		// FIELDS =============================================================
-		unsigned _uFreeSize;
+		size_t _uFreeSize;
 		char* _pFreeData;
 
 		char _data[MEMORY_PAGE_SIZE];
@@ -54,7 +54,7 @@ namespace EnginePlus
 		// PROPERTIES =========================================================
 
 		// Gets the size of available free memory.
-		unsigned FreeSize() const				{ return _uFreeSize; }
+		size_t FreeSize() const				{ return _uFreeSize; }
 
 		// Get or set the next page pointer.
 		CMemoryPage* pNext;

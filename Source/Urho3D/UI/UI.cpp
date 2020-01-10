@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2019 the Urho3D project.
+// Copyright (c) 2008-2020 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -153,6 +153,9 @@ UI::~UI() = default;
 
 void UI::SetCursor(Cursor* cursor)
 {
+    if (cursor_ == cursor)
+        return;
+
     // Remove old cursor (if any) and set new
     if (cursor_)
     {

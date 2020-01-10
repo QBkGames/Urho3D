@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2019 the Urho3D project.
+// Copyright (c) 2008-2020 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,8 @@ val kotlinVersion = embeddedKotlinVersion
 
 const val androidToolsVersion = "3.5.0-alpha13"
 const val bintrayVersion = "1.8.4"
-const val cmakeVersion = "3.10.2"
+const val cmakeVersion = "3.14.5+"
+const val relinkerVersion = "1.3.1"
 const val junitVersion = "4.12"
 const val testEspressoVersion = "3.0.2"
 const val testRunnerVersion = "1.0.2"
